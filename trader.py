@@ -1,28 +1,38 @@
-"""Trader module, containing the main logic"""
+"""trader module, containing the main logic"""
 
-class SignalGenerator:
-    def __call__(self, marketData):
+import sys
+
+def run_trial(market_data):
+    """Run the experiment with the given market data"""
+
+    def signal_generator(market_data):
+        """Reads market data and generates trading signals"""
         raise NotImplementedError
 
-class Engine:
-    def addOrder(self, order):
+    class Engine:
+        """Implements the market rules"""
+
+        def __init__(self):
+            """Initialize the required data structures"""
+            raise NotImplementedError
+
+        def __call__(self, order):
+            """Generates trades from orders"""
+            raise NotImplementedError
+
+    def strategy_evaluator(trades):
+        """Gives some sort of payoff from using the trading strategy"""
         raise NotImplementedError
-
-    def addOrders(self, orders):
-        trades = []
-        for order in orders:
-            trades.extend(addOrder(order))
-        return trades
-
-class StrategyEvaluator:
-    def __call__(self, trades):
-        raise NotImplementedError
-
-def runTrial(marketData):
-    signalGenerator = SignalGenerator()
+        
     engine = Engine()
-    strategyEvaluator = StrategyEvaluator()
     trades = []
-    for order in signalGenerator(marketData):
-        trades.extend(engine.addOrder(order))
-    strategyEvaluator(trades)
+    for order in signal_generator(market_data):
+        trades.extend(engine(order))
+    strategy_evaluator(trades)
+
+def main():
+    """Command line interface, for testing etc"""
+    run_trial(sys.stdin)
+
+if __name__ == "__main__":
+    main()
