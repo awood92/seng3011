@@ -7,7 +7,7 @@ def signal_generator(market_data):
     raise NotImplementedError
 
 class Engine:
-    """Implements the market rules"""
+    """Implements the market rules and generates trades from orders"""
 
     def __init__(self):
         raise NotImplementedError
