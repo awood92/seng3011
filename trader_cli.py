@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Trader command line interface"""
 
 from trader import run_trial

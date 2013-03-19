@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """trader module, containing the main logic"""
 
 class SignalGenerator:

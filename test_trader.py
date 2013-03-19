@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Trader unit test"""
 
 import trader
