@@ -1,10 +1,13 @@
 """trader module, containing the main logic"""
 
-import sys
-
-def signal_generator(market_data):
+class SignalGenerator:
     """Reads market data and generates trading signals"""
-    raise NotImplementedError
+
+    def __init__(self):
+        raise NotImplementedError
+
+    def __call__(self, order):
+        raise NotImplementedError
 
 class Engine:
     """Implements the market rules and generates trades from orders"""
@@ -19,17 +22,21 @@ def strategy_evaluator(trades):
     """Gives some sort of payoff from using the trading strategy"""
     raise NotImplementedError
 
+def market_simulator(market_data):
+    """Parses a market csv file into orders"""
+    raise NotImplementedError
+
 def run_trial(market_data):
     """Run the experiment with the given market data"""
+    signal_generator = SignalGenerator()
     engine = Engine()
     trades = []
-    for order in signal_generator(market_data):
+    for order in market_simulator(market_data):
         trades.extend(engine(order))
+        for algorithmic_order in signal_generator(order):
+            trades.extend(engine(algorithmic_order))
     strategy_evaluator(trades)
 
-def main():
-    """Command line interface, for testing etc"""
-    run_trial(sys.stdin)
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
