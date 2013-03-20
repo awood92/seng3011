@@ -43,8 +43,6 @@ then
 	exit 1
 fi
 
-exec git diff-index --check --cached $against --
-
 ./build.sh
 
-echo "aaaaaaaa"
+exec git diff-index --check --cached $against --
