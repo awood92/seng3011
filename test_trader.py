@@ -7,7 +7,7 @@ import unittest
 
 class TestTrader(unittest.TestCase):
     """Trader test case"""
-    raise NotImplementedError
+    pass
 
 if __name__ == '__main__':
     unittest.main()
