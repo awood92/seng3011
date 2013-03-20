@@ -46,3 +46,5 @@ fi
 exec git diff-index --check --cached $against --
 
 ./build.sh
+
+echo "aoeuaoeuaoeuao"
