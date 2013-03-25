@@ -5,6 +5,7 @@
 import trader
 import unittest
 
+
 class TestTrader(unittest.TestCase):
     """Trader test case"""
     pass
