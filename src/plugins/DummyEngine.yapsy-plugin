@@ -1,0 +1,8 @@
+[Core]
+Name = Dummy Engine
+Module = DummyEngine.py
+
+[Documentation]
+Description = A basic engine which does nothing
+Author = Nicholas Grasevski
+Version = 0.1

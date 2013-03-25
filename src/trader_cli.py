@@ -13,13 +13,13 @@ def main():
     """Run the trial, taking market data from stdin"""
     parser = optparse.OptionParser()
     parser.add_option("-g", "--generator", dest="generator",
-                      default="Dummy Signal Generator Plugin",
+                      default="Dummy Signal Generator",
                       help="signal generator")
     parser.add_option("-e", "--engine", dest="engine",
-                      default="Dummy Engine Plugin", help="engine")
+                      default="Dummy Engine", help="engine")
     parser.add_option("-s", "--strategyevaluator",
                       dest="strategyevaluator",
-                      default="Dummy Strategy Evaluator Plugin",
+                      default="Dummy Strategy Evaluator",
                       help="strategy evaluator")
     (options, args) = parser.parse_args()
     plugin_manager = yapsy.PluginManager.PluginManager()

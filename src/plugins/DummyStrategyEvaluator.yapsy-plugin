@@ -1,0 +1,8 @@
+[Core]
+Name = Dummy Strategy Evaluator
+Module = DummyStrategyEvaluator.py
+
+[Documentation]
+Description = A basic strategy evaluator which does nothing
+Author = Nicholas Grasevski
+Version = 0.1
