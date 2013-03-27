@@ -8,9 +8,6 @@ import yapsy.IPlugin
 class TradingRecord:
     """A transaction record"""
 
-    def __init__(self, csv_line):
-        raise NotImplementedError
-
     def show(self):
         """Returns a comma separated string"""
         raise NotImplementedError
