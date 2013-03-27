@@ -42,8 +42,9 @@ def main():
                                                  "StrategyEvaluator")
     strategy_evaluator = plugin_info.plugin_object
     strategy_evaluator.setup(plugin_info)
-    trader.run_trial(sys.stdin, signal_generator,
-                     engine, strategy_evaluator)
+    for trade in trader.run_trial(sys.stdin, signal_generator,
+                                  engine, strategy_evaluator):
+        print(trade.show())
 
 if __name__ == '__main__':
     main()

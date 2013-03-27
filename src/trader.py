@@ -17,6 +17,7 @@ def run_trial(market_data, signal_generator,
         for algorithmic_order in signal_generator(order):
             trades.extend(engine(algorithmic_order))
     strategy_evaluator(trades)
+    return trades
 
 if __name__ == '__main__':
     import doctest
