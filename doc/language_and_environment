@@ -1,0 +1,14 @@
+Overview and Summary
+	This document provides a concise analysis of the upcoming Algorithmic Trading System (ATS). It will contain details of our software design and architecture, our development environment, and our initial project plan & milestones, as well commonly occurring usecases.
+
+Implementation Language and Environment
+	For project management we're using git, specifically repositories hosted on Github. Github integrates a solid source control system with issue tracking, allowing us to track and manage milestones and tasks and manage our code in a team environment, in a seamless fashion over the internet.
+
+	Python is our language of choice, due to it's readability, ease-of-use, and clean testing and documentation framework.
+		
+		Python’s syntax is very well thought out. Unlike many scripting languages (e.g. Perl, Bash), readability and usability were primary considerations when Python’s syntax was designed. However, it is not as heavyweight/boilerplate as some of the more commonly used languages (i.e. Java), and suits the current specification for our ATS consisting of 3 main modules. Through the use of yapsy, an easy to use user-intuitive python plugin system, core components like the signal generator or the strategy evaluator can be altered/added/removed without any refactoring
+
+		Python incorporates module, class, function, and method documentation directly into the language itself. Documentation comments can be specified by a doc string after the function or method name (not unlike javadocs). Comments created by this method are accessible though an interactive Python shell or by automatic documentation generators, which allows us to generate documentation for the ATS easily and succinctly.
+
+		Python provides a no-boilerplate, practical and solid testing framework and simple testing constructs which allows for simple unit and black/white box tests to be developed and run.
+
