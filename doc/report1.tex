@@ -11,7 +11,7 @@
 
 
 \section{Overview}
-This document provides a concise analysis of the upcoming Algorithmic Trading System (ATS). It will contain details of our software design and architecture, our development environment, and our initial project plan and milestones, as well commonly occurring use cases.
+This document provides a concise analysis of the upcoming Algorithmic Trading System (ATS). It will contain details of our software design and architecture, our development environment, and our initial project plan and milestones, as well as commonly occurring use cases.
 
 
 \section{Use Cases}
@@ -38,7 +38,7 @@ This architecture is the core logic of our system. For now it can be encapsulate
 run_trial(market_data, signal_generator, engine, strategy_evaluator)
 \end{verbatim}
 
-which takes in the data file, a signal generator plugin, and engine plugin and a strategy evaluator plugin, then runs the simulation and displays the strategy evaluator output (this function also returns the list of trades, so that it can be spooled to a file for example). This library function can then be used by any interface, be it command line, web or GUI\@. A GUI wrapper for example would simply consist of a window to choose the data file and choose and configure the aforementioned plugins, then the user would click ``run" and then once the trial is complete the strategy evaluator plugin would bring up a new window with the results.
+which takes in the data file, a signal generator (strategy) plugin, and engine plugin and a strategy evaluator plugin, then runs the simulation and displays the strategy evaluator output (this function also returns the list of trades, so that it can be spooled to a file for example). This library function can then be used by any interface, be it command line, web or GUI\@. A GUI wrapper for example would simply consist of a window to choose the data file and choose and configure the aforementioned plugins, then the user would click ``run" and then once the trial is complete the strategy evaluator plugin would bring up a new window with the results.
 
 \subsection{Interaction and Sequence Diagrams}
 % Show interaction or sequence diagrams for each use case defined
