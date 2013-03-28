@@ -8,4 +8,8 @@ py_compilefiles *.py plugins/*.py && pydoc -w trader trader_cli test_trader plug
 failure=$?
 cd ..
 if [ $failure -ne 0 ]; then exit $failure; fi
-pdflatex -output-directory doc doc/report1.tex
+cd doc
+pdflatex report1.tex
+failure=$?
+cd ..
+exit $failure
