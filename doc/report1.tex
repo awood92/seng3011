@@ -19,13 +19,25 @@ This document provides a concise analysis of the upcoming Algorithmic Trading Sy
 % or 2 is enough). Ask the LIC/mentor for clarifications or
 % additional information.
 
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+Use Case & Reading a Sirca orders file\\\hline
+Description & An orders file is given, and the data is parsed, and translated into trading signals\\
+Actors & User\\
+Stakeholder & User, Evaluators\\
+Preconditions & The file is correctly formatted; i.e. \ contains only buys, sells and trades\\
+Postconditions & Order records are generated and are ready to be sent to the trading engine\\
+Trigger & A Sirca orders file is given to the parser\\
+\hline
+\end{tabular}
+
 
 \section{Design}
 \subsection{Architecture Diagram}
 % Develop an initial architecture diagram, showing the essential
 % components of your system
 
-The architecture diagram below illustrates the preliminary components of the system that we are developing, and the interactions between them. As can be seen, market data will be parsed by the market simulator, which will generate the orders. The market simulator will then forward the orders to the engine, which will maintain the order book and simulate the matching of orders in order to create trades. The same orders will also be forwarded onto the Strategy from the market simulator. The strategy may then generate its own algorithmically generated orders and also send them to the engine. The engine will forward all matched trades to the Strategy Evaluator, which will then analyze and process the trades generating a report that outlines the performance of the given strategy within the market conditions of the provided sirca data.
+The architecture diagram below illustrates the preliminary components of the system that we are developing, and the interactions between them. As can be seen, market data will be parsed by the market simulator, which will generate the orders. The market simulator will then forward the orders to the engine, which will maintain the order book and simulate the matching of orders in order to create trades. The same orders will also be forwarded onto the Strategy from the market simulator. The strategy may then generate its own algorithmically generated orders and also send them to the engine. The engine will forward all matched trades to the Strategy Evaluator, which will then analyze and process the trades generating a report that outlines the performance of the given strategy within the market conditions of the provided Sirca data.
 
 \begin{figure}
   \centering
@@ -42,6 +54,26 @@ which takes in the data file, a signal generator (strategy) plugin, and engine p
 
 \subsection{Interaction and Sequence Diagrams}
 % Show interaction or sequence diagrams for each use case defined
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{sequencediagram1}
+  \caption{Reading a Sirca orders file}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{sequencediagram2}
+  \caption{Generating algorithmic orders for one day}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{sequencediagram3}
+  \caption{Evaluating algorithmic trades and providing feedback to the user}
+\end{figure}
+
+
 
 \subsection{Implementation Language and Environment}
 % Present and justify implementation language and environment that
