@@ -3,6 +3,7 @@
 \date{\today}
 
 \documentclass{article}
+\usepackage{pdfpages}
 
 \begin{document}
 \maketitle
@@ -44,15 +45,15 @@ Our team is composed of four members. These are our main responsibilities throug
   \item[Christopher Tin-Loi] Programmer
 \end{description}
 
-We will be following an agile development process, with for 2-week sprints:
+We will be following an agile development process, with four 2-week sprints:
 \begin{description}
-  \item[Week 6: A working structure] By this stage, we expect to have the most simple bare bones implementation of the core system working. This excludes gui and whatnot. Currently we have coded a basic skeleton of our system, and our goal now is to fill in the stubs with the simplest working solutions. I.e. our strategy will be random, our engine will only output trades already in the file, and so on.
+  \item[Week 6: a working structure] By this stage, we expect to have the most simple bare bones implementation of the core system working. This excludes gui and whatnot. Currently we have coded a basic skeleton of our system, and our goal now is to fill in the stubs with the simplest working solutions. I.e. our strategy will be random, our engine will only output trades already in the file, and so on.
   \item[Week 8: a simple strategy] Once our structure is in place and working, we hope to iteratively enhance each respective component which requires improvement. This will include improving upon our basic strategy by writing other more sophisticated strategies. Other components of our Algorithmic Trading System will be addressed too. We plan to improve the trading engine incrementally to handle orders in a more realistic manner, and we also plan to improve the strategy evaluator by expanding on the generated evaluation report.
   \item[Week 10: public demo] By this stage we should have our graphical user interface, and it should be streamlined and intuitive for the user.
   \item[Week 12: final demo] By this stage we should have polished all components to an acceptable level.
 \end{description}
 
-We are currently at the beginning of the first sprint. Below is a Gantt chart of the allocated tasks:
+The project schedule can be found in the appendix. We are currently at the beginning of the first sprint.
 
 We are using various software tools to coordinate our work and to aid in project management:
 \begin{description}
@@ -62,12 +63,15 @@ We are using various software tools to coordinate our work and to aid in project
   \item[Source Code Hosting] We have set up a repository on github to enable easier collaboration between our own respective local repositories. We have gone with a centralized model because we are a small team and want to keep things simple. Ideally each of us will regularly pull each others changes from this repository and push our own changes.
   \item[Issue Tracker] In addition to git hosting, github also provides some basic project management tools. One of these is the issue tracker, which allows one to track feature requests, bugs, milestones and so on. We are currently using this in conjunction with the Gantt chart to track our progress in each sprint, and perhaps in the later stages of development to alert team members of bugs and new requirements. The issue tracker also provides a place to document each task and the ability to comment on an issue provides a record of design decisions made, as well as a concrete interpretation of the requirement.
   \item[Wiki] Github also provides wiki hosting for each project, so we may use this if we find a use for it.
-  \item[Code Review] Our code review method is somewhat ad hoc. It is intended that all team members look at each others code and issues can be raised by posting a comment on the corresponding task (and reopening it if necessary) in the issue tracker. For example if there is an issue with the requirement 1 code, then
-  \item[Code Review] Our code review methods are currently quite primitive. There is not any real peer review of code. Team members are expected to express any potential issues regarding source code through email or at our weekly meetings. Alterna
+  \item[Code Review] Github enables team members to comment on commits and on tasks, so if a team member finds some dodgy source code, they can either comment on the commit where that dodgy code was introduced or they can comment on the corresponding task in the issue tracker. The culprit is then automatically notified, and they can also respond with a justification for why the code is that way if appropriate.
 \end{description}
 
 
 \section{Summary}
 
+
+\appendix
+\section{Project Schedule}
+\includepdf[pages={-}]{schedule}
 
 \end{document}
