@@ -9,7 +9,7 @@ failure=$?
 cd ..
 if [ $failure -ne 0 ]; then exit $failure; fi
 cd doc
-pdflatex report1.tex
+lacheck report1.tex && pdflatex report1.tex
 failure=$?
 cd ..
 exit $failure
