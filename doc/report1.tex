@@ -31,6 +31,42 @@ Trigger & A Sirca orders file is given to the parser\\
 \hline
 \end{tabular}
 
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+Use Case & Choosing an appropriate algorithmic trading strategy and setting its different parameters\\\hline
+Description & A trading strategy is chosen (i.e. \ a trading signal generator plugin), which decides when to buy or sell\\
+Actors & User\\
+Stakeholder & User, Evaluators\\
+Preconditions & A list of algorithmic trading strategies are available to choose from in the GUI\\
+Postconditions & The trading signal generator is able to make orders based on other orders in the market\\
+Trigger & A user specifies a strategy to use\\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+Use Case & Generating algorithmic orders and trades for 1 particular day\\\hline
+Description & The trading signal generator will make orders based on its strategy\\
+Actors & User\\
+Stakeholder & User, Evaluators\\
+Preconditions & A trading signal generator has been chosen in the gui\\
+Postconditions & Trading signals are generated from the chosen trading signal generator\\
+Trigger & User clicks run in the GUI\\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{1in}|p{3in}|}
+\hline
+Use Case & Evaluating algorithmic trades and providing feedback to user\\\hline
+Description & The strategy evaluator takes the list of trades throughout the day and displays a report to the user\\
+Actors & User\\
+Stakeholder & User, Evaluators\\
+Preconditions & A day has been simulated and the data is ready to be evaluated\\
+Postconditions & An evaluation is ready to be given to the user\\
+Trigger & A day has been simulated and the data is passed into the Trading Strategy Evaluator\\
+\hline
+\end{tabular}
+
 
 \section{Design}
 \subsection{Architecture Diagram}
