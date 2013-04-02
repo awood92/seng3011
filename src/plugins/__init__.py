@@ -7,10 +7,14 @@ import yapsy.IPlugin
 
 class TradingRecord:
     """A transaction record"""
+    
+    def __init__(self, record):
+        self.x = []
+        [self.x.append(field) for field in record.split(', ')]
 
     def show(self):
         """Returns a comma separated string"""
-        raise NotImplementedError
+        return self.x  
 
 
 class Order(TradingRecord):

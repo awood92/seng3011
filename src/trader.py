@@ -5,7 +5,14 @@
 
 def market_simulator(market_data):
     """Parses a market csv file into orders"""
-    raise NotImplementedError
+
+    """Skips field names"""
+    next(market_data)
+
+    orderList = []
+    for line in market_data:
+        orderList.append(Order(line));
+    return orderList
 
 
 def run_trial(market_data, signal_generator,
