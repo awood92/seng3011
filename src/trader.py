@@ -2,17 +2,12 @@
 
 """trader module, containing the main logic"""
 
+import csv
+
 
 def market_simulator(market_data):
     """Parses a market csv file into orders"""
-
-    """Skips field names"""
-    next(market_data)
-
-    orderList = []
-    for line in market_data:
-        orderList.append(Order(line));
-    return orderList
+    return csv.DictReader(market_data)
 
 
 def run_trial(market_data, signal_generator,
