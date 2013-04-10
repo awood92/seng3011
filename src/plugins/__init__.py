@@ -23,7 +23,7 @@ class ISignalGeneratorPlugin(ITraderPlugin):
 class IEnginePlugin(ITraderPlugin):
     """Implements market rules and generates trades from orders"""
 
-    def __call__(self, order):
+    def __call__(self, trading_record):
         return []
 
 

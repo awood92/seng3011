@@ -1,0 +1,8 @@
+[Core]
+Name = Initial Engine
+Module = InitialEngine.py
+
+[Documentation]
+Description = All input trades are sent to the output
+Author = Nicholas Grasevski
+Version = 0.1

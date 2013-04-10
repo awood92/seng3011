@@ -4,6 +4,8 @@
 
 import sys
 import optparse
+import csv
+import signal
 import yapsy.PluginManager
 import trader
 import plugins
@@ -42,9 +44,13 @@ def main():
                                                  "StrategyEvaluator")
     strategy_evaluator = plugin_info.plugin_object
     strategy_evaluator.setup(plugin_info)
-    for trade in trader.run_trial(sys.stdin, signal_generator,
-                                  engine, strategy_evaluator):
-        print(trade.show())
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    dr = csv.DictReader(sys.stdin)
+    trades = trader.run_trial(dr, signal_generator,
+                              engine, strategy_evaluator);
+    dw = csv.DictWriter(sys.stdout, dr.fieldnames)
+    dw.writerow(dict((fn, fn) for fn in dr.fieldnames))
+    dw.writerows(trades)
 
 if __name__ == '__main__':
     main()
