@@ -8,6 +8,10 @@ def run_trial(market_data, signal_generator,
     """Run the experiment with the given market data"""
     trades = []
     for trading_record in market_data:
+        # print "=================ORDERBOOK=================="
+        # engine.orderBook.printBook()
+        # print "\n\n"
+
         trades.extend(engine(trading_record))
         if trading_record['Record Type'] != 'TRADE':
             for algorithmic_order in signal_generator(trading_record):

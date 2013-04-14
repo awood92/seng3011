@@ -2,38 +2,40 @@
 
 import plugins
 import copy
+from OrderBook import OrderBook
 
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
     previous_trade = None
     orderBook = OrderBook()
 
-    def __call__(self, trading_record):
+    def __call__(self, record):
 
         trades = []
-        record_type = trading_record['Record Type']
+        record_type = record['Record Type']
         if record_type == 'TRADE':
-            trades.append(trading_record)
+            trades.append(record)
         elif record_type == 'AMEND':
-            pass
+            self.orderBook.amend(record)
         elif record_type == 'ENTER':
-            pass
+            if record['Bid/Ask'] == 'B':
+                self.orderBook.addToBuy(record)
+            else:
+                self.orderBook.addToSell(record)
         elif record_type == 'DELETE':
-            pass 
-        
-
-            
+            #assert this later
+            self.orderBook.delete(record)
                 
         return trades
     def setPrevTrade(self,previous_trade):
 
         self.previous_trade = previous_trade
         
-# elif trading_record['Record Type'] == 'ENTER':
-#     currentType = trading_record['Bid/Ask']
+# elif record['Record Type'] == 'ENTER':
+#     currentType = record['Bid/Ask']
 #     if 'Bid/Ask' in self.previous_trade: #If not the first trade
 #         prevType = self.previous_trade['Bid/Ask']
-#         newRecord = copy.deepcopy(trading_record)
+#         newRecord = copy.deepcopy(record)
 #         if self.previous_trade['Record Type'] == 'ENTER' and currentType != prevType:
             
 #             newRecord['Bid/Ask'] = ''
