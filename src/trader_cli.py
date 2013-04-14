@@ -9,7 +9,8 @@ import signal
 import yapsy.PluginManager
 import trader
 import plugins
-
+import logging
+logging.basicConfig()
 
 def main():
     """Run the trial, taking market data from stdin"""

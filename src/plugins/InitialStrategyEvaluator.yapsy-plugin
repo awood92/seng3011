@@ -1,0 +1,8 @@
+[Core]
+Name = Initial Strategy Evaluator
+Module = InitialStrategyEvaluator.py
+
+[Documentation]
+Description = A basic strategy evaluator
+Author = Daniel Morton
+Version = 0.1

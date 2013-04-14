@@ -1,0 +1,8 @@
+[Core]
+Name = Initial Signal Generator
+Module = InitialSignalGenerator.py
+
+[Documentation]
+Description = A basic signal generator which does nothing
+Author = Nicholas Grasevski
+Version = 0.1
