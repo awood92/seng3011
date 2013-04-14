@@ -46,6 +46,26 @@ class OrderBook:
 
 	def _matchOrders(self): #This will go through buys and sells and return matched orders
 		trades = []
+		nextSell = 0
+		finished = false
+		for buyOrd in self.buys:
+			for nextSell in range(len(self.sells)):
+				sellOrd = self.sells[nextSell]
+				if buyOrd['Price'] >= self.sells
+					# do trades
+					if buyOrd['Volume'] >= sellOrd['Volume']:
+						#buyOrd['Volume'] -= sellOrd['Volume']
+						#create a trade
+						#remove the sell order somehow
+					else:
+						#create a trade
+						#reduce the volume of the sell order: sellOrd['Volume'] -= buyOrd['Volume']
+						#remove the buy order
+				else:
+					finished = true
+			if finished:
+				break
+				
 		return trades
 	def _insortSell(self,record): #doesnt order by time
 		count = 0
