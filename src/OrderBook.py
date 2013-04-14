@@ -63,6 +63,7 @@ class OrderBook:
 						#remove the buy order
 				else:
 					finished = true
+					break
 			if finished:
 				break
 				
