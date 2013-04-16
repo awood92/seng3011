@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class OrderBook:
 	"""This is a data structure used for matching buys and sells"""
 	buys = []
@@ -47,27 +49,54 @@ class OrderBook:
 	def _matchOrders(self): #This will go through buys and sells and return matched orders
 		trades = []
 		nextSell = 0
-		finished = false
+		finished = False
+		buysToDelete = []
 		for buyOrd in self.buys:
+			sellsToDelete = []
 			for nextSell in range(len(self.sells)):
 				sellOrd = self.sells[nextSell]
-				if buyOrd['Price'] >= self.sells
-					# do trades
-					if buyOrd['Volume'] >= sellOrd['Volume']:
-						#buyOrd['Volume'] -= sellOrd['Volume']
-						#create a trade
-						#remove the sell order somehow
+				buyOrdTime = datetime.strptime(buyOrd['Time'],'%H:%M:%S.%f')
+				sellOrdTime = datetime.strptime(sellOrd['Time'],'%H:%M:%S.%f')
+				if (buyOrd['Price'] >= sellOrd['Price']) and (buyOrdTime >= sellOrdTime):
+					# do the trades
+					if buyOrd['Volume'] > sellOrd['Volume']:
+						trades.append(_createTrade(buyOrd,sellOrd,sellOrd['Volume']))
+						buyOrd['Volume'] -= sellOrd['Volume']
+						sellsToDelete.append(nextSell)
+					elif buyOrd['Volume'] == sellOrd['Volume']:
+						trades.append(_createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+						sellsToDelete.append(nextSell)
+						buysToDelete.append(buyOrd)
+						break # this buy order is completed, move onto next one
 					else:
-						#create a trade
-						#reduce the volume of the sell order: sellOrd['Volume'] -= buyOrd['Volume']
-						#remove the buy order
+						trades.append(_createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+						sellOrd['Volume'] -= buyOrd['Volume']
+						deleteBuy = True
+						break # this buy order is completed, move onto next one
 				else:
-					finished = true
+					finished = True
 					break
+			if len(sellsToDelete) > 0:
+				for i in range(len(sellsToDelete)):
+					self.sells.pop(sellsToDelete[i])
 			if finished:
 				break
-				
+		if len(buysToDelete) > 0:
+			for i in range(len(buysToDelete)):
+				self.buys.pop(buysToDelete[i])
 		return trades
+
+	def _createTrade(self,buyOrder,sellOrder,volume):
+		trade = buyOrder.copy()
+		trade['Record Type'] = "TRADE"
+		trade['Price'] = sellOrder['Price']
+		trade['Volume'] = volume	
+		trade['Value'] = volume * sellOrder['Price']	
+		trade['Ask ID'] = sellOrder['Ask ID']
+		trade['Bid/Ask'] = ""
+		trade['Seller Broker ID'] = sellOrder['Seller Broker ID']
+		return trade
+		
 	def _insortSell(self,record): #doesnt order by time
 		count = 0
 		insertPrice = record['Price']
