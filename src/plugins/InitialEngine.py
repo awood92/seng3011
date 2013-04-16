@@ -7,29 +7,47 @@ from OrderBook import OrderBook
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
     previous_trade = None
+    algorithmicOrderQueue = []
     orderBook = OrderBook()
 
     def __call__(self, record):
+        trades = []
+        if self._isAlgorithmicOrder(record):
+            algorithmicOrderQueue.append(record) # fix this to insert in time order
+        else:
+            trades.extend(self._addOrder(record))
 
+        algOrdersToRemove = []
+        for algOrder in algorithmicOrderQueue:
+            algOrderTime = datetime.strptime(algOrder['Time'],'%H:%M:%S.%f')
+            currentRecordTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
+            if currentRecordTime >= algOrderTime:
+                trades.extend(self._addOrder(algOrder))
+                algOrdersToRemove.append(algOrder)
+
+        for order in algOrdersToRemove:
+            algorithmicOrderQueue.remove(order)
+        return trades
+
+    def _addOrder(self,order):
         trades = []
         record_type = record['Record Type']
-        if record_type == 'TRADE':
-            trades.append(record)
-        elif record_type == 'AMEND':
-            self.orderBook.amend(record)
+
+        if record_type == 'AMEND':
+            trades.extend(self.orderBook.amend(record))
         elif record_type == 'ENTER':
             if record['Bid/Ask'] == 'B':
-                self.orderBook.addToBuy(record)
+                trades.extend(self.orderBook.addToBuy(record))
             else:
-                self.orderBook.addToSell(record)
+                trades.extend(self.orderBook.addToSell(record))
         elif record_type == 'DELETE':
-            #assert this later
+	    #assert this later
             self.orderBook.delete(record)
-                
-        return trades
-    def setPrevTrade(self,previous_trade):
 
-        self.previous_trade = previous_trade
+        return trades
+    
+    def _isAlgorithmicOrder(record):
+        return (record['Buyer Broker ID'] == "algorithmictrader") or (record['Seller Broker ID'] == "algorithmictrader")
         
 # elif record['Record Type'] == 'ENTER':
 #     currentType = record['Bid/Ask']
