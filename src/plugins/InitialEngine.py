@@ -13,7 +13,7 @@ class InitialEngine(plugins.IEnginePlugin):
     def __call__(self, record):
         trades = []
         if self._isAlgorithmicOrder(record):
-            algorithmicOrderQueue.append(record) # fix this to insert in time order
+            algorithmicOrderQueue.append(record)
         else:
             self.currentTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
             trades.extend(self._addOrder(record,self.currentTime))
@@ -21,9 +21,8 @@ class InitialEngine(plugins.IEnginePlugin):
         algOrdersToRemove = []
         for algOrder in self.algorithmicOrderQueue:
             algOrderTime = datetime.strptime(algOrder['Time'],'%H:%M:%S.%f')
-            currentRecordTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
-            if currentRecordTime >= algOrderTime:
-                trades.extend(self._addOrder(algOrder,currentTime))
+            if self.currentTime >= algOrderTime:
+                trades.extend(self._addOrder(algOrder,self.currentTime))
                 algOrdersToRemove.append(algOrder)
 
         for order in algOrdersToRemove:
