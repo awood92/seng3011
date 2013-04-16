@@ -65,11 +65,11 @@ class OrderBook:
 					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
 						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume'],currentTime))
 						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
-						sellsToDelete.append(nextSell)
+						sellsToDelete.append(self.sells[nextSell])
 						nextSell += 1
 					elif int(buyOrd['Volume']) == int(sellOrd['Volume']):
 						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
-						sellsToDelete.append(nextSell)
+						sellsToDelete.append(self.sells[nextSell])
 						buysToDelete.append(buyOrd)
 						nextSell += 1
 						break # this buy order is completed, move onto next one
@@ -82,14 +82,14 @@ class OrderBook:
 					finished = True
 					break
 			if len(sellsToDelete) > 0:
-				for i in range(len(sellsToDelete)):
-					self.sells.pop(sellsToDelete[i])
+				for delSell in sellsToDelete:
+					self.sells.remove(delSell)
 					nextSell -= 1
 			if finished:
 				break
 		if len(buysToDelete) > 0:
-			for i in range(len(buysToDelete)):
-				self.buys.remove(buysToDelete[i])
+			for delBuy in buysToDelete:
+				self.buys.remove(delBuy)
 		return trades
 
 	def _createTrade(self,buyOrder,sellOrder,volume,currentTime):
