@@ -51,7 +51,7 @@ class OrderBook:
 		buysToDelete = []
 		for buyOrd in self.buys:
 			sellsToDelete = []
-			for nextSell in range(len(self.sells)):
+			while nextSell < len(self.sells):
 				sellOrd = self.sells[nextSell]
 				if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
 					# do the trades
@@ -59,10 +59,12 @@ class OrderBook:
 						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume'],currentTime))
 						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
 						sellsToDelete.append(nextSell)
+						nextSell += 1
 					elif int(buyOrd['Volume']) == int(sellOrd['Volume']):
 						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
 						sellsToDelete.append(nextSell)
 						buysToDelete.append(buyOrd)
+						nextSell += 1
 						break # this buy order is completed, move onto next one
 					else:
 						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
@@ -75,6 +77,7 @@ class OrderBook:
 			if len(sellsToDelete) > 0:
 				for i in range(len(sellsToDelete)):
 					self.sells.pop(sellsToDelete[i])
+					nextSell -= 1
 			if finished:
 				break
 		if len(buysToDelete) > 0:
