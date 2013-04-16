@@ -6,7 +6,6 @@ from OrderBook import OrderBook
 
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
-    previous_trade = None
     algorithmicOrderQueue = []
     orderBook = OrderBook()
 
@@ -18,7 +17,7 @@ class InitialEngine(plugins.IEnginePlugin):
             trades.extend(self._addOrder(record))
 
         algOrdersToRemove = []
-        for algOrder in algorithmicOrderQueue:
+        for algOrder in self.algorithmicOrderQueue:
             algOrderTime = datetime.strptime(algOrder['Time'],'%H:%M:%S.%f')
             currentRecordTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
             if currentRecordTime >= algOrderTime:
@@ -31,22 +30,22 @@ class InitialEngine(plugins.IEnginePlugin):
 
     def _addOrder(self,order):
         trades = []
-        record_type = record['Record Type']
+        order_type = order['Record Type']
 
-        if record_type == 'AMEND':
-            trades.extend(self.orderBook.amend(record))
-        elif record_type == 'ENTER':
-            if record['Bid/Ask'] == 'B':
-                trades.extend(self.orderBook.addToBuy(record))
+        if order_type == 'AMEND':
+            trades.extend(self.orderBook.amend(order))
+        elif order_type == 'ENTER':
+            if order['Bid/Ask'] == 'B':
+                trades.extend(self.orderBook.addToBuy(order))
             else:
-                trades.extend(self.orderBook.addToSell(record))
-        elif record_type == 'DELETE':
+                trades.extend(self.orderBook.addToSell(order))
+        elif order_type == 'DELETE':
 	    #assert this later
-            self.orderBook.delete(record)
+            self.orderBook.delete(order)
 
         return trades
     
-    def _isAlgorithmicOrder(record):
+    def _isAlgorithmicOrder(self,record):
         return (record['Buyer Broker ID'] == "algorithmictrader") or (record['Seller Broker ID'] == "algorithmictrader")
         
 # elif record['Record Type'] == 'ENTER':
