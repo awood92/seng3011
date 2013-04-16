@@ -57,20 +57,20 @@ class OrderBook:
 				sellOrd = self.sells[nextSell]
 				buyOrdTime = datetime.strptime(buyOrd['Time'],'%H:%M:%S.%f')
 				sellOrdTime = datetime.strptime(sellOrd['Time'],'%H:%M:%S.%f')
-				if (buyOrd['Price'] >= sellOrd['Price']) and (buyOrdTime >= sellOrdTime):
+				if (float(buyOrd['Price']) >= float(sellOrd['Price'])) and (buyOrdTime >= sellOrdTime):
 					# do the trades
-					if buyOrd['Volume'] > sellOrd['Volume']:
-						trades.append(_createTrade(buyOrd,sellOrd,sellOrd['Volume']))
-						buyOrd['Volume'] -= sellOrd['Volume']
+					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
+						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume']))
+						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
 						sellsToDelete.append(nextSell)
-					elif buyOrd['Volume'] == sellOrd['Volume']:
-						trades.append(_createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+					elif int(buyOrd['Volume']) == int(sellOrd['Volume']):
+						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume']))
 						sellsToDelete.append(nextSell)
 						buysToDelete.append(buyOrd)
 						break # this buy order is completed, move onto next one
 					else:
-						trades.append(_createTrade(buyOrd,sellOrd,buyOrd['Volume']))
-						sellOrd['Volume'] -= buyOrd['Volume']
+						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+						sellOrd['Volume'] = str(int(sellOrd['Volume']) - int(buyOrd['Volume']))
 						deleteBuy = True
 						break # this buy order is completed, move onto next one
 				else:
@@ -91,7 +91,7 @@ class OrderBook:
 		trade['Record Type'] = "TRADE"
 		trade['Price'] = sellOrder['Price']
 		trade['Volume'] = volume	
-		trade['Value'] = volume * sellOrder['Price']	
+		trade['Value'] = int(volume) * float(sellOrder['Price'])
 		trade['Ask ID'] = sellOrder['Ask ID']
 		trade['Bid/Ask'] = ""
 		trade['Seller Broker ID'] = sellOrder['Seller Broker ID']
