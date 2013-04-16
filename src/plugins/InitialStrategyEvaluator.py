@@ -12,7 +12,6 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     sellTotal = 0
     
     def __call__(self, trades):
-        print "called"
         self.trades = trades
 
     def evaluate(self):
