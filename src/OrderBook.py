@@ -7,12 +7,12 @@ class OrderBook:
 
 	def addToBuy(self,newRecord,currentTime):
 		self._insortBuy(newRecord)
-		if self._startOfDay(currentTime) == False:
+		if not self._startOfDay(currentTime):
 			return self._matchOrders(currentTime)
 		return []
 	def addToSell(self,newRecord,currentTime):
 		self._insortSell(newRecord)
-		if self._startOfDay(currentTime) == False:
+		if not self._startOfDay(currentTime):
 			return self._matchOrders(currentTime)
 		return []
 
@@ -26,7 +26,9 @@ class OrderBook:
 				self._insortBuy (recordToAmend)
 			elif recordType == 'S':
 				self._insortSell (recordToAmend)
-			matchedOrders = self._matchOrders(currentTime)
+
+			if not self._startOfDay(currentTime):			
+				matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 
 	def delete(self, recordToRemove): #returns True if deleted False otherwise
@@ -130,4 +132,4 @@ class OrderBook:
 			print item
 	def _startOfDay(self,currentTime):
 		# anything before 10am is in the pre-open market phase. no trading
-		return currentTime <= datetime.strptime("10:00:00.000","%H:%M:%S.%f")
+		return currentTime < datetime.strptime("10:00:00.000","%H:%M:%S.%f")

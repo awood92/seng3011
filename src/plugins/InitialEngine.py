@@ -33,7 +33,10 @@ class InitialEngine(plugins.IEnginePlugin):
     def _addOrder(self,order,currentTime):
         trades = []
         order_type = order['Record Type']
-
+	
+        # We do not handle TRADE, CANCEL_TRADE and OFFTR (off market trades) because our simulation handles
+        # the matching of orders to form trades. Trade match-ups will be different under our 
+        # market conditions when our strategy generates algorithmic orders
         if order_type == 'AMEND':
             trades.extend(self.orderBook.amend(order,currentTime))
         elif order_type == 'ENTER':
