@@ -7,12 +7,14 @@ class OrderBook:
 
 	def addToBuy(self,newRecord,currentTime):
 		self._insortBuy(newRecord)
-		matchedOrders = self._matchOrders(currentTime)
-		return matchedOrders
+		if self._startOfDay(currentTime) == False:
+			return self._matchOrders(currentTime)
+		return []
 	def addToSell(self,newRecord,currentTime):
 		self._insortSell(newRecord)
-		matchedOrders = self._matchOrders(currentTime)
-		return matchedOrders
+		if self._startOfDay(currentTime) == False:
+			return self._matchOrders(currentTime)
+		return []
 
 	def amend(self,recordToAmend,currentTime):
 		#assert this later
@@ -56,13 +58,12 @@ class OrderBook:
 		nextSell = 0
 		finished = False
 		buysToDelete = []
+		sellsToDelete = []
 		for buyOrd in self.buys:
-			sellsToDelete = []
 			while nextSell < len(self.sells):
 				sellOrd = self.sells[nextSell]
 				if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
-					# do the trades
-					tradeVolume = 0
+					# Match the trades
 					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
 						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume'],currentTime))
 						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
@@ -73,21 +74,20 @@ class OrderBook:
 						sellsToDelete.append(self.sells[nextSell])
 						buysToDelete.append(buyOrd)
 						nextSell += 1
-						break # this buy order is completed, move onto next one
+						break # This buy order is completed, move onto next one
 					else:
 						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
 						sellOrd['Volume'] = str(int(sellOrd['Volume']) - int(buyOrd['Volume']))
 						buysToDelete.append(buyOrd)
-						break # this buy order is completed, move onto next one
+						break # This buy order is completed, move onto next one
 				else:
 					finished = True
 					break
-			if len(sellsToDelete) > 0:
-				for delSell in sellsToDelete:
-					self.sells.remove(delSell)
-					nextSell -= 1
-			if finished:
+			if finished: # The spread (difference between buy price and sell price) is less then 0
 				break
+		if len(sellsToDelete) > 0:
+			for delSell in sellsToDelete:
+				self.sells.remove(delSell)
 		if len(buysToDelete) > 0:
 			for delBuy in buysToDelete:
 				self.buys.remove(delBuy)
@@ -105,7 +105,7 @@ class OrderBook:
 		trade['Time'] = datetime.strftime(currentTime,"%H:%M:%S.%f")
 		return trade
 		
-	def _insortSell(self,record): #doesnt order by time
+	def _insortSell(self,record):
 		count = 0
 		insertPrice = float(record['Price'])
 		for order in self.sells:
@@ -114,7 +114,7 @@ class OrderBook:
 			else:
 				count+=1
 		self.sells.insert(count,record)
-	def _insortBuy(self,record): #doesnt order by time
+	def _insortBuy(self,record):
 		count = 0
 		insertPrice = float(record['Price'])
 		for order in self.buys:
@@ -122,10 +122,12 @@ class OrderBook:
 				break
 			else:
 				count+=1
-		size = len(self.buys)
 		self.buys.insert(count,record)
 	def printBook(self):
 		for item in self.buys:
 			print item
 		for item in self.sells:
 			print item
+	def _startOfDay(self,currentTime):
+		# anything before 10am is in the pre-open market phase. no trading
+		return currentTime <= datetime.strptime("10:00:00.000","%H:%M:%S.%f")
