@@ -9,16 +9,26 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     #setup(self, config)
     trades = []
     buyTotal = 0
+    numberOfBuys = 0
     sellTotal = 0
+    numberOfSells = 0
     
     def __call__(self, trades):
         self.trades = trades
 
     def evaluate(self):
         for trade in self.trades:
-            amount = trade['Price'] * trade['Volume']
+            amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Bid ID'] == 'Algorithmic':
                 self.buyTotal += amount
-            else:
+                self.numberOfBuys+=int(trade['Volume'])
+            elif trade['Ask ID'] == 'Algorithmic':
                 self.sellTotal += amount
-        print 'Profit: '+(self.sellTotal-self.buyTotal)
+                self.numberOfSells+=int(trade['Volume'])
+                print "found a sell"
+        f = open("Report.txt","w+")
+        f.write('Bought :'+str(self.numberOfBuys)+' shares\n')
+        f.write('Sold :'+str(self.numberOfSells)+' shares\n')
+        f.write('Profit: '+str(self.sellTotal-self.buyTotal))
+        f.close()
+        
