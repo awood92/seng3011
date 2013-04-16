@@ -55,9 +55,7 @@ class OrderBook:
 			sellsToDelete = []
 			for nextSell in range(len(self.sells)):
 				sellOrd = self.sells[nextSell]
-				buyOrdTime = datetime.strptime(buyOrd['Time'],'%H:%M:%S.%f')
-				sellOrdTime = datetime.strptime(sellOrd['Time'],'%H:%M:%S.%f')
-				if (float(buyOrd['Price']) >= float(sellOrd['Price'])) and (buyOrdTime >= sellOrdTime):
+				if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
 					# do the trades
 					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
 						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume']))
