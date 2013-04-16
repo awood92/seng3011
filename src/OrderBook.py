@@ -83,7 +83,7 @@ class OrderBook:
 				break
 		if len(buysToDelete) > 0:
 			for i in range(len(buysToDelete)):
-				self.buys.pop(buysToDelete[i])
+				self.buys.remove(buysToDelete[i])
 		return trades
 
 	def _createTrade(self,buyOrder,sellOrder,volume):
