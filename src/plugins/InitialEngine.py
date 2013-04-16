@@ -47,7 +47,7 @@ class InitialEngine(plugins.IEnginePlugin):
         return trades
     
     def _isAlgorithmicOrder(self,record):
-        return (record['Buyer Broker ID'] == "algorithmictrader") or (record['Seller Broker ID'] == "algorithmictrader")
+        return (record['Buyer Broker ID'] == "Algorithmic") or (record['Seller Broker ID'] == "Algorithmic")
         
 # elif record['Record Type'] == 'ENTER':
 #     currentType = record['Bid/Ask']

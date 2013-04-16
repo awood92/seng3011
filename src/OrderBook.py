@@ -14,23 +14,6 @@ class OrderBook:
 		self._insortSell(newRecord)
 		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
-	def delete(self, recordToRemove): #returns True if deleted False otherwise
-
-		valueToFind = None
-		recordType = recordToRemove['Bid/Ask']
-		if recordType == 'B':
-			valueToFind = recordToRemove['Bid ID'] 
-			for record in self.buys:
-				if record['Bid ID'] == valueToFind:
-					self.buys.remove(record)
-					return True
-		else:
-			valueToFind = recordToRemove['Ask ID']
-			for record in self.sells:
-				if record['Ask ID'] == valueToFind:
-					self.sells.remove(record)
-					return True
-		return False
 
 	def amend(self,recordToAmend,currentTime):
 		#assert this later
@@ -43,6 +26,30 @@ class OrderBook:
 			self._insortSell (recordToAmend)
 		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
+
+	def delete(self, recordToRemove): #returns True if deleted False otherwise
+		valueToFind = None
+		recordType = recordToRemove['Bid/Ask']
+		removed = False
+		if recordType == 'B':
+			valueToFind = recordToRemove['Bid ID'] 
+			for record in self.buys:
+				if record['Bid ID'] == valueToFind:
+					recordToRemove = record
+					removed = True
+			if removed:
+				self.buys.remove(recordToRemove)
+				return True
+		else:
+			valueToFind = recordToRemove['Ask ID']
+			for record in self.sells:
+				if record['Ask ID'] == valueToFind:
+					recordToRemove = record
+					removed = True
+			if removed:
+				self.sells.remove(record)
+				return True
+		return removed
 
 	def _matchOrders(self,currentTime): #This will go through buys and sells and return matched orders
 		trades = []
@@ -99,18 +106,18 @@ class OrderBook:
 		
 	def _insortSell(self,record): #doesnt order by time
 		count = 0
-		insertPrice = record['Price']
+		insertPrice = float(record['Price'])
 		for order in self.sells:
-			if insertPrice < order['Price']:
+			if insertPrice < float(order['Price']):
 				break
 			else:
 				count+=1
 		self.sells.insert(count,record)
 	def _insortBuy(self,record): #doesnt order by time
 		count = 0
-		insertPrice = record['Price']
+		insertPrice = float(record['Price'])
 		for order in self.buys:
-			if insertPrice > order['Price']:
+			if insertPrice > float(order['Price']):
 				break
 			else:
 				count+=1
