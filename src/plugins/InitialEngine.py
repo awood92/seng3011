@@ -3,45 +3,46 @@
 import plugins
 import copy
 from OrderBook import OrderBook
+from datetime import datetime
 
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
     algorithmicOrderQueue = []
     orderBook = OrderBook()
-
+    currentTime = None
     def __call__(self, record):
         trades = []
         if self._isAlgorithmicOrder(record):
             algorithmicOrderQueue.append(record) # fix this to insert in time order
         else:
-            trades.extend(self._addOrder(record))
+            self.currentTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
+            trades.extend(self._addOrder(record,self.currentTime))
 
         algOrdersToRemove = []
         for algOrder in self.algorithmicOrderQueue:
             algOrderTime = datetime.strptime(algOrder['Time'],'%H:%M:%S.%f')
             currentRecordTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
             if currentRecordTime >= algOrderTime:
-                trades.extend(self._addOrder(algOrder))
+                trades.extend(self._addOrder(algOrder,currentTime))
                 algOrdersToRemove.append(algOrder)
 
         for order in algOrdersToRemove:
             algorithmicOrderQueue.remove(order)
         return trades
 
-    def _addOrder(self,order):
+    def _addOrder(self,order,currentTime):
         trades = []
         order_type = order['Record Type']
 
         if order_type == 'AMEND':
-            trades.extend(self.orderBook.amend(order))
+            trades.extend(self.orderBook.amend(order,currentTime))
         elif order_type == 'ENTER':
             if order['Bid/Ask'] == 'B':
-                trades.extend(self.orderBook.addToBuy(order))
+                trades.extend(self.orderBook.addToBuy(order,currentTime))
             else:
-                trades.extend(self.orderBook.addToSell(order))
+                trades.extend(self.orderBook.addToSell(order,currentTime))
         elif order_type == 'DELETE':
-	    #assert this later
-            self.orderBook.delete(order)
+            self.orderBook.delete(order) #assert this later
 
         return trades
     

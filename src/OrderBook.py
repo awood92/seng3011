@@ -5,14 +5,14 @@ class OrderBook:
 	buys = []
 	sells = []
 
-	def addToBuy(self,newRecord):
+	def addToBuy(self,newRecord,currentTime):
 		self._insortBuy(newRecord)
-		matchedOrders = self._matchOrders()
+		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
-	def addToSell(self,newRecord):
+	def addToSell(self,newRecord,currentTime):
 
 		self._insortSell(newRecord)
-		matchedOrders = self._matchOrders()
+		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 	def delete(self, recordToRemove): #returns True if deleted False otherwise
 
@@ -23,18 +23,16 @@ class OrderBook:
 			for record in self.buys:
 				if record['Bid ID'] == valueToFind:
 					self.buys.remove(record)
-
 					return True
 		else:
 			valueToFind = recordToRemove['Ask ID']
 			for record in self.sells:
 				if record['Ask ID'] == valueToFind:
 					self.sells.remove(record)
-					
 					return True
 		return False
 
-	def amend(self,recordToAmend):
+	def amend(self,recordToAmend,currentTime):
 		#assert this later
 		self.delete (recordToAmend)
 		recordToAmend['Record Type'] = 'ENTER'
@@ -43,10 +41,10 @@ class OrderBook:
 			self._insortBuy (recordToAmend)
 		else:
 			self._insortSell (recordToAmend)
-		matchedOrders = self._matchOrders()
+		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 
-	def _matchOrders(self): #This will go through buys and sells and return matched orders
+	def _matchOrders(self,currentTime): #This will go through buys and sells and return matched orders
 		trades = []
 		nextSell = 0
 		finished = False
@@ -58,16 +56,16 @@ class OrderBook:
 				if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
 					# do the trades
 					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
-						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume']))
+						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume'],currentTime))
 						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
 						sellsToDelete.append(nextSell)
 					elif int(buyOrd['Volume']) == int(sellOrd['Volume']):
-						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
 						sellsToDelete.append(nextSell)
 						buysToDelete.append(buyOrd)
 						break # this buy order is completed, move onto next one
 					else:
-						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume']))
+						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
 						sellOrd['Volume'] = str(int(sellOrd['Volume']) - int(buyOrd['Volume']))
 						deleteBuy = True
 						break # this buy order is completed, move onto next one
@@ -84,7 +82,7 @@ class OrderBook:
 				self.buys.remove(buysToDelete[i])
 		return trades
 
-	def _createTrade(self,buyOrder,sellOrder,volume):
+	def _createTrade(self,buyOrder,sellOrder,volume,currentTime):
 		trade = buyOrder.copy()
 		trade['Record Type'] = "TRADE"
 		trade['Price'] = sellOrder['Price']
@@ -93,6 +91,7 @@ class OrderBook:
 		trade['Ask ID'] = sellOrder['Ask ID']
 		trade['Bid/Ask'] = ""
 		trade['Seller Broker ID'] = sellOrder['Seller Broker ID']
+		trade['Time'] = datetime.strftime(currentTime,"%H:%M:%S.%f")
 		return trade
 		
 	def _insortSell(self,record): #doesnt order by time
