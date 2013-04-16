@@ -10,21 +10,21 @@ class OrderBook:
 		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 	def addToSell(self,newRecord,currentTime):
-
 		self._insortSell(newRecord)
 		matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 
 	def amend(self,recordToAmend,currentTime):
 		#assert this later
-		self.delete (recordToAmend)
-		recordToAmend['Record Type'] = 'ENTER'
-		recordType = recordToAmend['Bid/Ask']
-		if recordType == 'B':
-			self._insortBuy (recordToAmend)
-		else:
-			self._insortSell (recordToAmend)
-		matchedOrders = self._matchOrders(currentTime)
+		matchedOrders = []		
+		if self.delete (recordToAmend):
+			recordToAmend['Record Type'] = 'ENTER'
+			recordType = recordToAmend['Bid/Ask']
+			if recordType == 'B':
+				self._insortBuy (recordToAmend)
+			elif recordType == 'S':
+				self._insortSell (recordToAmend)
+			matchedOrders = self._matchOrders(currentTime)
 		return matchedOrders
 
 	def delete(self, recordToRemove): #returns True if deleted False otherwise
@@ -37,18 +37,18 @@ class OrderBook:
 				if record['Bid ID'] == valueToFind:
 					recordToRemove = record
 					removed = True
+					break
 			if removed:
 				self.buys.remove(recordToRemove)
-				return True
 		else:
 			valueToFind = recordToRemove['Ask ID']
 			for record in self.sells:
 				if record['Ask ID'] == valueToFind:
 					recordToRemove = record
 					removed = True
+					break
 			if removed:
 				self.sells.remove(record)
-				return True
 		return removed
 
 	def _matchOrders(self,currentTime): #This will go through buys and sells and return matched orders
@@ -62,22 +62,24 @@ class OrderBook:
 				sellOrd = self.sells[nextSell]
 				if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
 					# do the trades
+					tradeVolume = 0
 					if int(buyOrd['Volume']) > int(sellOrd['Volume']):
-						trades.append(self._createTrade(buyOrd,sellOrd,sellOrd['Volume'],currentTime))
+						tradeVolume = sellOrd['Volume']
 						buyOrd['Volume'] = str(int(buyOrd['Volume']) - int(sellOrd['Volume']))
 						sellsToDelete.append(self.sells[nextSell])
 						nextSell += 1
 					elif int(buyOrd['Volume']) == int(sellOrd['Volume']):
-						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
+						tradeVolume = buyOrd['Volume']
 						sellsToDelete.append(self.sells[nextSell])
 						buysToDelete.append(buyOrd)
 						nextSell += 1
 						break # this buy order is completed, move onto next one
 					else:
-						trades.append(self._createTrade(buyOrd,sellOrd,buyOrd['Volume'],currentTime))
+						tradeVolume = buyOrd['Volume']
 						sellOrd['Volume'] = str(int(sellOrd['Volume']) - int(buyOrd['Volume']))
 						deleteBuy = True
 						break # this buy order is completed, move onto next one
+					trades.append(self._createTrade(buyOrd,sellOrd,tradeVolume,currentTime))
 				else:
 					finished = True
 					break
@@ -121,6 +123,7 @@ class OrderBook:
 				break
 			else:
 				count+=1
+		size = len(self.buys)
 		self.buys.insert(count,record)
 	def printBook(self):
 		for item in self.buys:
