@@ -16,8 +16,8 @@ def run_trial(market_data, signal_generator,
         if trading_record['Record Type'] != 'TRADE':
             for algorithmic_order in signal_generator(trading_record):
                 trades.extend(engine(algorithmic_order))
-        engine.setPrevTrade(trading_record)
     strategy_evaluator(trades)
+    strategy_evaluator.evaluate()
     return trades
 
 if __name__ == '__main__':
