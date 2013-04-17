@@ -1,3 +1,3 @@
-Bought :0 shares
+Bought :500 shares
 Sold :0 shares
-Profit: 0
+Profit: -18750.0
