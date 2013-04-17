@@ -10,7 +10,7 @@ class InitialSignalGenerator(plugins.ISignalGeneratorPlugin):
         """Read buy and sell parameters from the config file"""
         self.started = False
         buy = {
-            '#Instrument': config.get('Parameters', 'instrument'),
+            'Instrument': config.get('Parameters', 'instrument'),
             'Date': config.getint('Parameters', 'buy_date'),
             'Time': config.get('Parameters', 'buy_time'),
             'Record Type': 'ENTER',
@@ -20,19 +20,21 @@ class InitialSignalGenerator(plugins.ISignalGeneratorPlugin):
             'Value': '',
             'Qualifiers': '',
             'Trans ID': 0,
-            'Bid ID': '',
+            'Bid ID': 'Algorithmic1',
             'Ask ID': '',
             'Bid/Ask': 'B',
             'Entry Time': '',
             'Old Price': '',
             'Old Volume': '',
-            'Buyer Broker ID': '',
+            'Buyer Broker ID': 'Algorithmic',
             'Seller Broker ID': ''
         }
         sell = buy.copy()
         sell['Date'] = config.get('Parameters', 'sell_date')
         sell['Time'] = config.get('Parameters', 'sell_time')
         sell['Bid/Ask'] = 'A'
+        sell['Seller Broker ID'] = 'Algorithmic'
+        sell['Ask ID'] = 'Algorithmic1'
         if (sell['Date'], sell['Time']) < (buy['Date'], buy['Time']):
             self.orders = [sell, buy]
         else:
