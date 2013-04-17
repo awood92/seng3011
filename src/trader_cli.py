@@ -35,15 +35,15 @@ def main():
     plugin_info = plugin_manager.getPluginByName(options.generator,
                                                  "SignalGenerator")
     signal_generator = plugin_info.plugin_object
-    signal_generator.setup(plugin_info)
+    signal_generator.setup(plugin_info.details)
     plugin_info = plugin_manager.getPluginByName(options.engine,
                                                  "Engine")
     engine = plugin_info.plugin_object
-    engine.setup(plugin_info)
+    engine.setup(plugin_info.details)
     plugin_info = plugin_manager.getPluginByName(options.strategyevaluator,
                                                  "StrategyEvaluator")
     strategy_evaluator = plugin_info.plugin_object
-    strategy_evaluator.setup(plugin_info)
+    strategy_evaluator.setup(plugin_info.details)
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     dr = csv.DictReader(sys.stdin)
     trades = trader.run_trial(dr, signal_generator,
