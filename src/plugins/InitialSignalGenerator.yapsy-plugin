@@ -3,6 +3,16 @@ Name = Initial Signal Generator
 Module = InitialSignalGenerator.py
 
 [Documentation]
-Description = A basic signal generator which does nothing
+Description = All input trades are sent to the output
 Author = Nicholas Grasevski
 Version = 0.1
+
+[Parameters]
+instrument = BHP
+price = 37.500
+volume = 500
+undisclosed_volume = 0
+buy_date = 20130205
+buy_time = 09:00:00.000
+sell_date = 20130205
+sell_time = 15:00:00.000

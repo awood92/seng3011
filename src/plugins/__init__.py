@@ -16,7 +16,7 @@ class ITraderPlugin(yapsy.IPlugin.IPlugin):
 class ISignalGeneratorPlugin(ITraderPlugin):
     """Reads market data and generates trading signals"""
 
-    def __call__(self, order):
+    def __call__(self, trading_record=None):
         return []
 
 

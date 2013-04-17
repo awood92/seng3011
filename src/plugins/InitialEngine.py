@@ -7,26 +7,12 @@ from datetime import datetime
 
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
-    algorithmicOrderQueue = []
     orderBook = OrderBook()
     currentTime = None
     def __call__(self, record):
         trades = []
-        if self._isAlgorithmicOrder(record):
-            algorithmicOrderQueue.append(record)
-        else:
-            self.currentTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
-            trades.extend(self._addOrder(record,self.currentTime))
-
-        algOrdersToRemove = []
-        for algOrder in self.algorithmicOrderQueue:
-            algOrderTime = datetime.strptime(algOrder['Time'],'%H:%M:%S.%f')
-            if self.currentTime >= algOrderTime:
-                trades.extend(self._addOrder(algOrder,self.currentTime))
-                algOrdersToRemove.append(algOrder)
-
-        for order in algOrdersToRemove:
-            algorithmicOrderQueue.remove(order)
+        self.currentTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
+        trades.extend(self._addOrder(record,self.currentTime))
         return trades
 
     def _addOrder(self,order,currentTime):
@@ -47,23 +33,3 @@ class InitialEngine(plugins.IEnginePlugin):
             self.orderBook.delete(order) #assert this later
 
         return trades
-    
-    def _isAlgorithmicOrder(self,record):
-        return (record['Buyer Broker ID'] == "Algorithmic") or (record['Seller Broker ID'] == "Algorithmic")
-        
-# elif record['Record Type'] == 'ENTER':
-#     currentType = record['Bid/Ask']
-#     if 'Bid/Ask' in self.previous_trade: #If not the first trade
-#         prevType = self.previous_trade['Bid/Ask']
-#         newRecord = copy.deepcopy(record)
-#         if self.previous_trade['Record Type'] == 'ENTER' and currentType != prevType:
-            
-#             newRecord['Bid/Ask'] = ''
-#             newRecord['Record Type'] = 'ALGOTRADE'
-#             if currentType == 'B': #buy
-#                 newRecord['Ask ID'] = self.previous_trade['Bid ID']
-#             else: #sell
-#                 newRecord['Bid ID'] = self.previous_trade['Ask ID']
-#             trades.append(newRecord)
-#     else:
-#         self.previous_trade['Bid/Ask'] = ''
