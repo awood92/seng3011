@@ -1,0 +1,25 @@
+sample data:
+--------------
+test1.csv
+- Simple match (1 buy, 1 sell)
+--------------
+test2.csv
+- Complex match (1 buy, 4 sell)
+--------------
+test3.csv
+- Simple amend (1 buy, 1 amend, 1 sell)
+--------------
+test4.csv
+- Complex amend (1 buy, 2 amend, 1 sell)
+--------------
+test5.csv
+- Simple delete (1 buy, 1 delete, 1 sell)
+--------------
+test6.csv
+- Complex delete (1 buy, 4 delete, 4 sell)
+--------------
+test7.csv
+- Simple mix (not implemented)
+--------------
+test8.csv
+- Complex mix (not implemented)
