@@ -40,8 +40,8 @@ Installation
 Linux:
 
 1. Extract this zip somewhere
-2. `cd week6demo/src`
-3. Sample sirca files in `week6demo/samples`
+2. `cd src`
+3. Sample sirca files in `samples`
 
 Windows:
 
@@ -59,7 +59,7 @@ Our implementation consists of 3 main ingredients:
 The main command line program reads historical trading data (ie the Sirca file) in CSV format from standard input and outputs the resultant trades to standard output in the same CSV format. Various plugins can be chosen for the signal generator, engine and strategy evaluator by specifying these in the command line options, otherwise the default dummy plugins are used. Further usage help for the command line interface can be invoked as follows:
 
 ----
-    week6demo/src/trader_cli.py -h
+    src/trader_cli.py -h
 ----
 
 There are 3 types of plugins:
