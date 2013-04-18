@@ -96,4 +96,4 @@ Example use cases:
     src/trader_cli.py -g'Initial Signal Generator' -e'Initial Engine' <samples/sample.csv >trades.csv
 ----
 
-See our black box testing script `runTests.sh` for further use cases.
+See our black box testing scripts `runTests.sh` and `run.sh` for further use cases.
