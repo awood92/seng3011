@@ -41,7 +41,7 @@ Linux:
 
 1. Extract this zip somewhere
 2. `cd src`
-3. Sample sirca files in `samples`
+3. Sample sirca files in `sample`
 
 Windows:
 
@@ -53,13 +53,13 @@ Usage
 Our implementation consists of 3 main ingredients:
 
 1. `src/trader_cli.py` - The main command line program
-2. `samples/*.csv` - Sample historical data from Sirca
+2. `sample/*.csv` - Sample historical data from Sirca
 3. `src/plugins/*.py, src/plugins/*.yapsy-plugin` - Plugins, with their corresponding configuration files
 
 The main command line program reads historical trading data (ie the Sirca file) in CSV format from standard input and outputs the resultant trades to standard output in the same CSV format. Various plugins can be chosen for the signal generator, engine and strategy evaluator by specifying these in the command line options, otherwise the default dummy plugins are used. Further usage help for the command line interface can be invoked as follows:
 
 ----
-    src/trader_cli.py -h
+    ./trader_cli.py -h
 ----
 
 There are 3 types of plugins:
@@ -83,17 +83,20 @@ Example use cases:
 
 ----
     # Run trader simulation using dummy plugins which produce no output.
-    src/trader_cli.py <samples/sample.csv
+    # NOTE: trader_cli.py must be run from within the src directory, because
+    # it refers to the "plugins" subdirectory!
+    ./trader_cli.py <sample/sample.csv
 
     # Run trader simulation using initial engine and initial strategy
     # evaluator, and output the trades to a file. Then read the report
     # outputted by the initial strategy evaluator.
-    src/trader_cli.py -e'Initial Engine' -s'Initial Strategy Evaluator' <samples/sample2.csv >trades.csv
+    ./trader_cli.py -e'Initial Engine' -s'Initial Strategy Evaluator' <sample/sample2.csv >trades.csv
     less Report.txt
 
     # Edit parameters for the Initial Signal Generator plugin, then run.
-    vi src/plugins/InitialSignalGenerator.yapsy-plugin
-    src/trader_cli.py -g'Initial Signal Generator' -e'Initial Engine' <samples/sample.csv >trades.csv
+    vi plugins/InitialSignalGenerator.yapsy-plugin
+    ./trader_cli.py -g'Initial Signal Generator' -e'Initial Engine' -s'Initial Strategy Evaluator' <sample/sample.csv >trades.csv
+    less Report.txt
 ----
 
 See our black box testing scripts `runTests.sh` and `run.sh` for further use cases.
