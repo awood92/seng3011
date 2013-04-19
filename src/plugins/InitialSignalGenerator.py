@@ -35,8 +35,8 @@ class InitialSignalGenerator(plugins.ISignalGeneratorPlugin):
         sell['Bid/Ask'] = 'A'
         sell['Buyer Broker ID'] = ''
         sell['Seller Broker ID'] = 'Algorithmic'
+        sell['Bid ID'] = ''
         sell['Ask ID'] = 'Algorithmic1'
-        sell['Buy ID'] = ''
         if (sell['Date'], sell['Time']) < (buy['Date'], buy['Time']):
             self.orders = [sell, buy]
         else:
