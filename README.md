@@ -85,17 +85,17 @@ Example use cases:
     # Run trader simulation using dummy plugins which produce no output.
     # NOTE: trader_cli.py must be run from within the src directory, because
     # it refers to the "plugins" subdirectory!
-    ./trader_cli.py <sample/sample.csv
+    ./trader_cli.py <../sample/sample.csv
 
     # Run trader simulation using initial engine and initial strategy
     # evaluator, and output the trades to a file. Then read the report
     # outputted by the initial strategy evaluator.
-    ./trader_cli.py -e'Initial Engine' -s'Initial Strategy Evaluator' <sample/sample2.csv >trades.csv
+    ./trader_cli.py -e'Initial Engine' -s'Initial Strategy Evaluator' <../sample/sample2.csv >trades.csv
     less Report.txt
 
     # Edit parameters for the Initial Signal Generator plugin, then run.
     vi plugins/InitialSignalGenerator.yapsy-plugin
-    ./trader_cli.py -g'Initial Signal Generator' -e'Initial Engine' -s'Initial Strategy Evaluator' <sample/sample.csv >trades.csv
+    ./trader_cli.py -g'Initial Signal Generator' -e'Initial Engine' -s'Initial Strategy Evaluator' <../sample/sample.csv >trades.csv
     less Report.txt
 ----
 
