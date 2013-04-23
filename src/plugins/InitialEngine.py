@@ -1,20 +1,25 @@
 """Initial engine plugin"""
 
 import copy
-import datetime
 
 import plugins
 
+from datetime import datetime
+
+
 class OrderBook:
     """This is a data structure used for matching buys and sells"""
-    buys = []
-    sells = []
+
+    def __init__(self):
+        self.buys = []
+        self.sells = []
 
     def addToBuy(self,newRecord,currentTime):
         self._insortBuy(newRecord)
         if not self._startOfDay(currentTime):
             return self._matchOrders(currentTime)
         return []
+
     def addToSell(self,newRecord,currentTime):
         self._insortSell(newRecord)
         if not self._startOfDay(currentTime):
@@ -121,6 +126,7 @@ class OrderBook:
             else:
                 count+=1
         self.sells.insert(count,record)
+
     def _insortBuy(self,record):
         count = 0
         insertPrice = float(record['Price'])
@@ -130,6 +136,7 @@ class OrderBook:
             else:
                 count+=1
         self.buys.insert(count,record)
+
     def printBook(self):
         for item in self.buys:
             print item
@@ -141,8 +148,11 @@ class OrderBook:
 
 class InitialEngine(plugins.IEnginePlugin):
     """All input trades are sent to the output"""
-    orderBook = OrderBook()
-    currentTime = None
+
+    def setup(self, config):
+        self.orderBook = OrderBook()
+        self.currentTime = None
+
     def __call__(self, record):
         trades = []
         self.currentTime = datetime.strptime(record['Time'],'%H:%M:%S.%f')
