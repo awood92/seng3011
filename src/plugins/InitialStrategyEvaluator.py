@@ -30,4 +30,3 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         f.write('Sold :'+str(self.numberOfSells)+' shares\n')
         f.write('Profit: '+str(self.sellTotal-self.buyTotal))
         f.close()
-        

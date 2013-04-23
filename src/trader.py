@@ -19,9 +19,10 @@ def run_trial(market_data, signal_generator,
         engine_time = (trading_record['Date'], trading_record['Time'])
         while len(orders) > 0 and orders[0][:2] < engine_time:
             trades.extend(engine(heapq.heappop(orders)[3]))
-	trades.extend(engine(trading_record))
+        trades.extend(engine(trading_record))
         for order in signal_generator(trading_record):
-            heapq.heappush(orders, (order['Date'], order['Time'], count, order))
+            heapq.heappush(orders,
+                           (order['Date'], order['Time'], count, order))
             next(count)
     for i in range(len(orders)):
         trades.extend(engine(heapq.heappop(orders)[3]))

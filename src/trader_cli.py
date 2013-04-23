@@ -49,7 +49,7 @@ def main():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     dr = csv.DictReader(sys.stdin)
     trades = trader.run_trial(dr, signal_generator,
-                              engine, strategy_evaluator);
+                              engine, strategy_evaluator)
     dw = csv.DictWriter(sys.stdout, dr.fieldnames)
     dw.writerow(dict((fn, fn) for fn in dr.fieldnames))
     dw.writerows(trades)
