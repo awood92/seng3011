@@ -43,6 +43,4 @@ then
 	exit 1
 fi
 
-./check.sh
-
-exec git diff-index --check --cached $against --
+./check.sh && exec git diff-index --check --cached $against --
