@@ -16,7 +16,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         # All the trades which have informed this signal generator
         self.tradesviewed = []
         
-        self.sharesInStock = []
+        self.BHPsharesInStock = 0 # convert this into a dictionary for multiple instruments
 
         # Orders made by this signal generator
         self.myorders = []
@@ -28,11 +28,12 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         
         if trading_record == None:
             # return all initial orders i.e. random before market open
+            return orders
         elif trading_record['Record Type'] == 'TRADE':
             self.tradesviewed.insert(0,trading_record)
             
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
-                self.sharesInStock[trading_record['Instrument']] += trading_record['Volume']
+                self.BHPsharesInStock += int(trading_record['Volume'])
             
             if len(self.tradesviewed) > self.historicalOutlook:
                 self.tradesviewed.pop()
@@ -55,7 +56,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                     buy['Bid/Ask'] = 'B'
                     buy['Price'] = trading_record['Price'] # we can increase this if we want
                     buy['Volume'] = trading_record['Volume'] # Determine this based off market volume maybe?
-                    buy['Bid ID'] = 'Algorithmic' + len(self.myorders)
+                    buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
                     buy['Buyer Broker ID'] = 'Algorithmic'
                     buy['Seller Broker ID'] = ''
                     orders.append(buy)
@@ -68,11 +69,11 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                     sell['Price'] = trading_record['Price'] # we can decrease this if we want
                     
                     # Determine volume based off how much we currently hold, can be parameterised
-                    volumeToSell = self.sharesInStock[sell['Instrument']] / 4
+                    volumeToSell = self.BHPsharesInStock / 4
                     sell['Volume'] = volumeToSell
-                    self.sharesInStock[sell['Instrument']] -= volumeToSell
+                    self.BHPsharesInStock -= volumeToSell
                     
-                    sell['Bid ID'] = 'Algorithmic' + len(self.myorders) # Keeps this unique
+                    sell['Bid ID'] = 'Algorithmic' + str(len(self.myorders)) # Keeps this unique
                     sell['Buyer Broker ID'] = ''
                     sell['Seller Broker ID'] = 'Algorithmic'
                     orders.append(sell)
