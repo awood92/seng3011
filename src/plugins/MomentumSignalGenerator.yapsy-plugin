@@ -1,0 +1,11 @@
+[Core]
+Name = Momentum Signal Generator
+Module = MomentumSignalGenerator.py
+
+[Documentation]
+Description = Generates orders according to the momentum strategy, having received previous trades
+Author = George El Boustani
+Version = 0.1
+
+[Parameters]
+historicalOutlook = 10
