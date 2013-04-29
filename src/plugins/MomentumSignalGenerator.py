@@ -34,9 +34,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
                 self.sharesInStock[trading_record['Instrument']] += trading_record['Volume']
             
-            if trading_record['Seller Broker ID'] == 'Algorithmic':
-                self.sharesInStock[trading_record['Instrument']] -= trading_record['Volume']
-            
             if len(self.tradesviewed) > self.historicalOutlook:
                 self.tradesviewed.pop()
                 
