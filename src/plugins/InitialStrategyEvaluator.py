@@ -24,12 +24,12 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
-                total += amount
+                total -= amount
                 graph.write(str(total)+"\t"+trade['Time']+"\n")
                 self.buyTotal += amount
                 self.numberOfBuys+=int(trade['Volume'])
             if trade['Seller Broker ID'] == 'Algorithmic':
-                total -= amount
+                total += amount
                 graph.write(str(-amount)+"\t"+trade['Time']+"\n")
                 self.sellTotal += amount
                 self.numberOfSells+=int(trade['Volume'])
