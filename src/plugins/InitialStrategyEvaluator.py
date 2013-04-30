@@ -17,12 +17,20 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         self.trades = trades
         self.evaluate()
     def evaluate(self):
+        
+        graph = open("Graph.tsv","w+")
+        graph.write("Money\tTime\n")
+        total = 0
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
+                total += amount
+                graph.write(str(total)+"\t"+trade['Time']+"\n")
                 self.buyTotal += amount
                 self.numberOfBuys+=int(trade['Volume'])
-            elif trade['Seller Broker ID'] == 'Algorithmic':
+            if trade['Seller Broker ID'] == 'Algorithmic':
+                total -= amount
+                graph.write(str(-amount)+"\t"+trade['Time']+"\n")
                 self.sellTotal += amount
                 self.numberOfSells+=int(trade['Volume'])
         f = open("Report.txt","w+")
