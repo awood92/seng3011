@@ -8,8 +8,8 @@ Author = George El Boustani
 Version = 0.1
 
 [Parameters]
-momentumInterval = 2
-historicalOutlook = 10
+momentumInterval = 5
+historicalOutlook = 5
 sellPacketSize = 100
 buyPacketSize = 100
 maxBuyPacketSurplus = 1

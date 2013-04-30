@@ -7,18 +7,16 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    trades = []
-    buyTotal = 0
-    volumeOfBuys = 0
-    sellTotal = 0
-    volumeOfSells = 0
-    numberOfBuys = 0
-    numberOfSells = 0
     def __call__(self, trades):
         self.trades = trades
+        self.buyTotal = 0
+        self.volumeOfBuys = 0
+        self.sellTotal = 0
+        self.volumeOfSells = 0
+        self.numberOfBuys = 0
+        self.numberOfSells = 0
         self.evaluate()
     def evaluate(self):
-        
         graph = open("data.tsv","w+")
         graph.write("date\tclose\n")
         total = 0
@@ -28,12 +26,13 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 total -= amount
                 graph.write(trade['Time']+"\t"+str(total)+"\n")
                 self.buyTotal += amount
-                self.volumeOfBuys+=int(trade['Volume'])
+                self.volumeOfBuys += int(trade['Volume'])
+                
             if trade['Seller Broker ID'] == 'Algorithmic':
                 total += amount
-                graph.write(trade['Time']+"\t"+str(total)+"\n")
+                graph.write(trade['Time'] + "\t" + str(total) + "\n")
                 self.sellTotal += amount
-                self.volumeOfSells+=int(trade['Volume'])
+                self.volumeOfSells += int(trade['Volume'])
 
         buyAverage = 0
         sellAverage = 0
@@ -41,6 +40,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
             buyAverage = self.buyTotal/self.volumeOfBuys
         if self.volumeOfSells > 0:
             sellAverage = self.sellTotal/self.volumeOfSells
+        
         graph.close()
         f = open("Report.txt","w+")
         f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')

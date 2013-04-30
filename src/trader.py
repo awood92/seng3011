@@ -23,9 +23,10 @@ def run_trial(market_data, signal_generator,
         # We need to filter existing trades out, because signal generator now accepts trades
         if ((recordType != 'TRADE') and (recordType != 'CANCEL_TRADE') and (recordType != 'OFFTR')):
             engine_time = (trading_record['Date'], trading_record['Time'])
-            while len(orders) > 0 and orders[0][:2] < engine_time:
-                trades.extend(engine(heapq.heappop(orders)[3]))
-            newtrades = engine(trading_record)
+            newtrades = []
+            while len(orders) > 0 and orders[0][:2] <= engine_time:
+                newtrades.extend(engine(heapq.heappop(orders)[3]))
+            newtrades.extend(engine(trading_record))
             trades.extend(newtrades)
             # Inform the signal generator about the new trades made
             for newtrade in newtrades:
