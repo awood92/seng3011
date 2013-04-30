@@ -40,6 +40,6 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')
         f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
         f.write('Profit: $'+str(self.sellTotal-self.buyTotal))
-        f.write('Average buy price: $'+buyAverage)
-        f.write('Average sell price: $'+sellAverage)
+        f.write('Average buy price: $'+str(buyAverage))
+        f.write('Average sell price: $'+str(sellAverage))
         f.close()
