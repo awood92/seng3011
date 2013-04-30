@@ -9,10 +9,9 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     #setup(self, config)
     trades = []
     buyTotal = 0
-    numberOfBuys = 0
+    volumeOfBuys = 0
     sellTotal = 0
-    numberOfSells = 0
-    
+    volumeOfSells = 0
     def __call__(self, trades):
         self.trades = trades
         self.evaluate()
@@ -27,14 +26,18 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 total -= amount
                 graph.write(str(total)+"\t"+trade['Time']+"\n")
                 self.buyTotal += amount
-                self.numberOfBuys+=int(trade['Volume'])
+                self.volumeOfBuys+=int(trade['Volume'])                
             if trade['Seller Broker ID'] == 'Algorithmic':
                 total += amount
                 graph.write(str(-amount)+"\t"+trade['Time']+"\n")
                 self.sellTotal += amount
-                self.numberOfSells+=int(trade['Volume'])
+                self.volumeOfSells+=int(trade['Volume'])
+        buyAverage = buyTotal/volumeOfBuys
+        sellAverage = sellTotal/volumeOfSells
         f = open("Report.txt","w+")
         f.write('Bought :'+str(self.numberOfBuys)+' shares\n')
         f.write('Sold :'+str(self.numberOfSells)+' shares\n')
-        f.write('Profit: '+str(self.sellTotal-self.buyTotal))
+        f.write('Profit: $'+str(self.sellTotal-self.buyTotal))
+        f.write('Average buy price: $'+buyAverage)
+        f.write('Average sell price: $'+sellAverage)
         f.close()
