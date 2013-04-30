@@ -19,27 +19,29 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         self.evaluate()
     def evaluate(self):
         
-        graph = open("Graph.tsv","w+")
-        graph.write("Money\tTime\n")
+        graph = open("data.tsv","w+")
+        graph.write("date\tclose\n")
         total = 0
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
                 total -= amount
-                graph.write(str(total)+"\t"+trade['Time']+"\n")
+                graph.write(trade['Time']+"\t"+str(total)+"\n")
                 self.buyTotal += amount
                 self.volumeOfBuys+=int(trade['Volume'])
             if trade['Seller Broker ID'] == 'Algorithmic':
                 total += amount
-                graph.write(str(-amount)+"\t"+trade['Time']+"\n")
+                graph.write(trade['Time']+"\t"+str(total)+"\n")
                 self.sellTotal += amount
                 self.volumeOfSells+=int(trade['Volume'])
+
         buyAverage = 0
         sellAverage = 0
         if self.volumeOfBuys > 0:
             buyAverage = self.buyTotal/self.volumeOfBuys
         if self.volumeOfSells > 0:
             sellAverage = self.sellTotal/self.volumeOfSells
+        graph.close()
         f = open("Report.txt","w+")
         f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')
         f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
