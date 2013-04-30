@@ -32,8 +32,8 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 graph.write(str(-amount)+"\t"+trade['Time']+"\n")
                 self.sellTotal += amount
                 self.volumeOfSells+=int(trade['Volume'])
-        buyAverage = buyTotal/volumeOfBuys
-        sellAverage = sellTotal/volumeOfSells
+        buyAverage = self.buyTotal/self.volumeOfBuys
+        sellAverage = self.sellTotal/self.volumeOfSells
         f = open("Report.txt","w+")
         f.write('Bought :'+str(self.numberOfBuys)+' shares\n')
         f.write('Sold :'+str(self.numberOfSells)+' shares\n')
