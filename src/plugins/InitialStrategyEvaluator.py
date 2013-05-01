@@ -7,26 +7,45 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    trades = []
-    buyTotal = 0
-    numberOfBuys = 0
-    sellTotal = 0
-    numberOfSells = 0
-    
     def __call__(self, trades):
         self.trades = trades
+        self.buyTotal = 0
+        self.volumeOfBuys = 0
+        self.sellTotal = 0
+        self.volumeOfSells = 0
+        self.numberOfBuys = 0
+        self.numberOfSells = 0
         self.evaluate()
     def evaluate(self):
+        graph = open("data.tsv","w+")
+        graph.write("date\tclose\n")
+        total = 0
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
+                total -= amount
+                graph.write(trade['Time']+"\t"+str(total)+"\n")
                 self.buyTotal += amount
-                self.numberOfBuys+=int(trade['Volume'])
-            elif trade['Seller Broker ID'] == 'Algorithmic':
+                self.volumeOfBuys += int(trade['Volume'])
+                
+            if trade['Seller Broker ID'] == 'Algorithmic':
+                total += amount
+                graph.write(trade['Time'] + "\t" + str(total) + "\n")
                 self.sellTotal += amount
-                self.numberOfSells+=int(trade['Volume'])
+                self.volumeOfSells += int(trade['Volume'])
+
+        buyAverage = 0
+        sellAverage = 0
+        if self.volumeOfBuys > 0:
+            buyAverage = self.buyTotal/self.volumeOfBuys
+        if self.volumeOfSells > 0:
+            sellAverage = self.sellTotal/self.volumeOfSells
+        
+        graph.close()
         f = open("Report.txt","w+")
-        f.write('Bought :'+str(self.numberOfBuys)+' shares\n')
-        f.write('Sold :'+str(self.numberOfSells)+' shares\n')
-        f.write('Profit: '+str(self.sellTotal-self.buyTotal))
+        f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')
+        f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
+        f.write('Profit: $'+str(self.sellTotal-self.buyTotal)+'\n')
+        f.write('Average buy price: $'+str(buyAverage)+'\n')
+        f.write('Average sell price: $'+str(sellAverage))
         f.close()
