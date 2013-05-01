@@ -170,8 +170,9 @@ class InitialEngine(plugins.IEnginePlugin):
 
     def __call__(self, record):
         trades = []
-        self.currentTime = datetime.strptime(record['Time'], '%H:%M:%S.%f')
-        trades.extend(self._addOrder(record, self.currentTime))
+        if record != None: # this might be None when a trader has nothing to dump at end of day
+            self.currentTime = datetime.strptime(record['Time'], '%H:%M:%S.%f')
+            trades.extend(self._addOrder(record, self.currentTime))
         return trades
 
     def _addOrder(self, order, currentTime):

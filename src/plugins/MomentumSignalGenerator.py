@@ -37,7 +37,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             if self.BHPsharesInStock > 0:
                 # Dump the shares because day is finished
                 return self.createDumpShareSell()
-            return orders
+            return None
         elif trading_record['Record Type'] == 'TRADE':
             self.currentTime = trading_record['Time']
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
