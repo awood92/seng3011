@@ -40,9 +40,16 @@ def run_trial(market_data, signal_generator,
                                (order['Date'], order['Time'], count, order))
                 next(count)
     for i in range(len(orders)):
-        trades.extend(engine(heapq.heappop(orders)[3]))
-    #for order in signal_generator():
-    #    trades.extend(engine(order))
+        newtrades = []
+        currentorder = heapq.heappop(orders)[3]
+        newtrades.extend(engine(currentorder))
+        for order in signal_generator(currentorder):
+            newtrades.extend(engine(order))              
+        trades.extend(newtrades)
+    
+    # Tell the signal generator its the end of the day
+    trades.extend(engine(signal_generator(None,True)))
+    
     strategy_evaluator(trades)
     return trades
 

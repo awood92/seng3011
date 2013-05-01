@@ -25,13 +25,21 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.BHPsharesInStock = 0 # convert this into a dictionary for multiple instruments
         self.myorders = []
         self.outstandingSellVolume = 0
+        self.currentTime = '00:00:00.000'
 
-    def __call__(self, trading_record=None):
+    def __call__(self, trading_record=None, endofday=False):
         orders = []
-        if trading_record == None:
+            
+        if trading_record == None and endofday == False:
             # return all initial orders i.e. random before market open
             return orders
+        elif trading_record == None and endofday == True:
+            if self.BHPsharesInStock > 0:
+                # Dump the shares because day is finished
+                return self.createDumpShareSell()
+            return orders
         elif trading_record['Record Type'] == 'TRADE':
+            self.currentTime = trading_record['Time']
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
                 self.BHPsharesInStock += int(trading_record['Volume'])
             if trading_record['Seller Broker ID'] == 'Algorithmic':
@@ -101,7 +109,30 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                                 orders.append(sell)
                                 self.myorders.append(sell)
         return orders
+    
+    def createDumpShareSell(self):
+        sell = {
+            'Instrument': 'BHP',
+            'Date': '20130101',
+            'Time': self.currentTime,
+            'Record Type': 'ENTER',
+            'Price': 'MP',
+            'Volume': self.BHPsharesInStock,
+            'Undisclosed Volume': '',
+            'Value': '',
+            'Qualifiers': '',
+            'Trans ID': 0,
+            'Bid ID': '',
+            'Ask ID': 'Algorithmic' + str(len(self.myorders)),
+            'Bid/Ask': 'A',
+            'Entry Time': '',
+            'Old Price': '',
+            'Old Volume': '',
+            'Buyer Broker ID': '',
+            'Seller Broker ID': 'Algorithmic'
+        }
         
+        return sell
     def shouldBuyMoreStocks(self, instrument):
         if self.BHPsharesInStock + self.outstandingSellVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
             return False
