@@ -168,7 +168,7 @@ class InitialEngine(plugins.IEnginePlugin):
         self.orderBook = OrderBook()
         self.currentTime = None
 
-    def __call__(self, record):
+    def __call__(self, record=None):
         trades = []
         if record != None: # this might be None when a trader has nothing to dump at end of day
             self.currentTime = datetime.strptime(record['Time'], '%H:%M:%S.%f')
