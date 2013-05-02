@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Trader graphical user interface"""
+
 import os
 import csv
 import wx
@@ -8,8 +10,6 @@ import yapsy.PluginManager
 
 import trader
 import plugins
-
-"""Trader graphical user interface"""
 
 
 class MainFrame(wx.Frame):
@@ -89,7 +89,7 @@ class MainFrame(wx.Frame):
                                            longHelp=HELP_STRINGS['Close'])
         self.Bind(wx.EVT_TOOL, self.OnClose, tool)
         self._toolbar.AddSeparator()
-        icon = wx.Bitmap('resources/run.png')
+        icon = wx.Bitmap(my_path('resources/run.png'))
         tool = self._toolbar.AddLabelTool(MainFrame.ID_RUN, 'Run',
                                            icon, shortHelp='Run',
                                            longHelp=HELP_STRINGS['Run'])
@@ -103,7 +103,6 @@ class MainFrame(wx.Frame):
         panel.SetSizer(sizer)
 
     def _enable_controls(self, enable=True):
-        """Enable or disable export, close and run"""
         self._item_export.Enable(enable)
         self._item_close.Enable(enable)
         self._item_run.Enable(enable)
@@ -190,7 +189,7 @@ class TabPanel(wx.Panel):
     def InitUI(self):
         """Initialize the workspace"""
         plugin_manager = yapsy.PluginManager.PluginManager()
-        plugin_manager.setPluginPlaces(['plugins'])
+        plugin_manager.setPluginPlaces([my_path('plugins')])
         plugin_manager.setCategoriesFilter({
             'SignalGenerator': plugins.ISignalGeneratorPlugin,
             'Engine': plugins.IEnginePlugin,
@@ -231,7 +230,6 @@ class TabPanel(wx.Panel):
 
     @staticmethod
     def _plugin_settings(plugin):
-        """Plugin settings helper function"""
         if plugin.details.has_section('Parameters'):
             default = dict(plugin.details.items('Parameters'))
         else:
@@ -239,7 +237,6 @@ class TabPanel(wx.Panel):
         return {'plugin': plugin, 'default': default}
 
     def _add_plugin(self, grid, name, choices, on_config, on_about):
-        """Add plugin helper function"""
         text = wx.StaticText(self, label=name+':')
         label = ''
         if len(choices) > 0:
@@ -297,7 +294,6 @@ class TabPanel(wx.Panel):
                                         engine, strategy_evaluator)
 
     def _config(self, control, plugins):
-        """Config dialog helper function"""
         plugin_name = control.GetValue()
         if plugin_name in plugins:
             plugin = plugins[plugin_name]
@@ -319,7 +315,6 @@ class TabPanel(wx.Panel):
             dialog.Destroy()
 
     def _about(self, control, plugins):
-        """About dialog helper function"""
         message = 'Please choose a plugin'
         caption = 'No plugin chosen'
         plugin_name = control.GetValue()
@@ -411,11 +406,17 @@ class ConfigDialog(wx.Dialog):
         return self._config
 
 
+def my_path(path):
+    """Path to use, given the relative path"""
+    return os.path.join(os.path.dirname(__file__), path)
+
+
 def main():
     """Open the main window"""
     app = wx.App(False)
     MainFrame(None, title='Algorithmic Trading System').Show()
     app.MainLoop()
+
 
 if __name__ == '__main__':
     main()
