@@ -1,0 +1,17 @@
+[Core]
+Name = Mean Reversion Signal Generator
+Module = MeanReversionSignalGenerator.py
+
+[Documentation]
+Description = Generates orders according to the mean reversion strategy, having received previous trades
+Author = George El Boustani
+Version = 0.1
+
+[Parameters]
+sellPacketSize = 50
+buyPacketSize = 50
+maxBuyPacketSurplus = 10
+buyDistanceFromMeanThreshold = 0.001
+sellDistanceFromMeanThreshold = 0.001
+minimumAverageSamplesBeforeAction = 10
+minimumTimeBeforeAction = 10:05:00.000
