@@ -10,7 +10,7 @@ import yapsy.PluginManager
 
 import trader
 import plugins
-
+import copy
 
 class MainFrame(wx.Frame):
     """The main window"""
@@ -168,7 +168,9 @@ class MainFrame(wx.Frame):
 
     def OnRun(self, e):
         """Run the simulation"""
+        self._enable_controls(False)
         self._notebook.GetCurrentPage().Run()
+        self._enable_controls(True)
 
     def OnAbout(self, e):
         """About the program"""
@@ -293,8 +295,8 @@ class TabPanel(wx.Panel):
         
         progressMax = len(self._market_data)
         progressdialog = wx.ProgressDialog("Running Simulation", "Trading records remaining", progressMax ,  style=wx.PD_CAN_ABORT | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME)
-        
-        self._trades = trader.run_trial(self._market_data, signal_generator,
+        progressdialog.Update(0,"Preparing data for processing.\nSimulation will begin shortly.")
+        self._trades = trader.run_trial(copy.deepcopy(self._market_data), signal_generator,
                                         engine, strategy_evaluator, progressdialog)
         progressdialog.Destroy()
 
