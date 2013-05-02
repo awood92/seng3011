@@ -6,6 +6,7 @@ import sys
 import optparse
 import csv
 import signal
+import os
 
 import yapsy.PluginManager
 

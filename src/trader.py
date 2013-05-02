@@ -7,7 +7,7 @@ import heapq
 
 
 def run_trial(market_data, signal_generator,
-              engine, strategy_evaluator):
+              engine, strategy_evaluator,progressdialog=None):
     """Run the experiment with the given market data"""
     trades = []
     orders = []
@@ -17,8 +17,12 @@ def run_trial(market_data, signal_generator,
     for order in signal_generator():
         heapq.heappush(orders, (order['Date'], order['Time'], count, order))
         next(count)
-
+        
+    tradingrecordsprocessed = 0
     for trading_record in market_data:
+        tradingrecordsprocessed += 1
+        if progressdialog != None and tradingrecordsprocessed%1000 == 0:
+            progressdialog.Update(tradingrecordsprocessed,"Processing records: "+str(tradingrecordsprocessed)+" complete.")
         recordType = trading_record['Record Type']
         # We need to filter existing trades out, because signal generator now accepts trades
         if ((recordType != 'TRADE') and (recordType != 'CANCEL_TRADE') and (recordType != 'OFFTR')):

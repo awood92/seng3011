@@ -16,7 +16,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.minimumAverageSamplesBeforeAction = config.getfloat('Parameters','minimumAverageSamplesBeforeAction')
         self.minimumTimeBeforeAction = config.get('Parameters','minimumTimeBeforeAction')
         
-        
         self.BHPsharesInStock = 0
         self.outstandingSellVolume = 0
         self.outstandingBuyVolume = 0
@@ -60,7 +59,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             
             if len(self.tradesViewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
                 distance = self.distanceFromMean(float(trading_record['Price']))
-                if distance <= -self.sellDistanceFromMeanThreshold:
+                if distance >= self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
                         sell = trading_record.copy()
                         sell['Record Type'] = 'ENTER'
@@ -81,7 +80,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         sell['Seller Broker ID'] = 'Algorithmic'
                         orders.append(sell)
                         self.myorders.append(sell)
-                elif distance >= self.buyDistanceFromMeanThreshold:
+                elif distance <= -self.buyDistanceFromMeanThreshold:
                     if self.shouldBuyMoreStocks(trading_record['Instrument']) == True:
                         buy = trading_record.copy()
                         buy['Record Type'] = 'ENTER'

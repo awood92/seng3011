@@ -290,8 +290,13 @@ class TabPanel(wx.Panel):
         plugin = self._strategy_evaluators[plugin_name]['plugin']
         strategy_evaluator = plugin.plugin_object
         strategy_evaluator.setup(plugin.details)
+        
+        progressMax = len(self._market_data)
+        progressdialog = wx.ProgressDialog("Running Simulation", "Trading records remaining", progressMax ,  style=wx.PD_CAN_ABORT | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME)
+        
         self._trades = trader.run_trial(self._market_data, signal_generator,
-                                        engine, strategy_evaluator)
+                                        engine, strategy_evaluator, progressdialog)
+        progressdialog.Destroy()
 
     def _config(self, control, plugins):
         plugin_name = control.GetValue()

@@ -10,7 +10,7 @@ Version = 0.1
 [Parameters]
 sellPacketSize = 50
 buyPacketSize = 50
-maxBuyPacketSurplus = 100
+maxBuyPacketSurplus = 10
 buyDistanceFromMeanThreshold = 0.002
 sellDistanceFromMeanThreshold = 0.002
 minimumAverageSamplesBeforeAction = 10
