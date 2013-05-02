@@ -18,7 +18,8 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         
         
         self.BHPsharesInStock = 0
-        self.outstandingSellVolume = 0;
+        self.outstandingSellVolume = 0
+        self.outstandingBuyVolume = 0
         
         self.myorders = []
         self.tradesViewed = []
@@ -43,6 +44,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         elif trading_record['Record Type'] == 'TRADE':
             self.currentTime = trading_record['Time']
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
+                self.outstandingBuyVolume -= int(trading_record['Volume'])
                 self.BHPsharesInStock += int(trading_record['Volume'])
             if trading_record['Seller Broker ID'] == 'Algorithmic':
                 self.outstandingSellVolume -= int(trading_record['Volume'])
@@ -58,7 +60,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             
             if len(self.tradesViewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
                 distance = self.distanceFromMean(float(trading_record['Price']))
-                if distance <= self.sellDistanceFromMeanThreshold:
+                if distance <= -self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
                         sell = trading_record.copy()
                         sell['Record Type'] = 'ENTER'
@@ -86,6 +88,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         buy['Bid/Ask'] = 'B'
                         buy['Price'] = 'MP' #trading_record['Price'] # we can increase this if we want
                         buy['Volume'] = self.buyPacketSize # Determine this based off market volume maybe?
+                        self.outstandingBuyVolume += int(buy['Volume'])
                         buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
                         buy['Ask ID'] = ''
                         buy['Buyer Broker ID'] = 'Algorithmic'
@@ -124,6 +127,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         
         return sell
     def shouldBuyMoreStocks(self, instrument):
-        if self.BHPsharesInStock + self.outstandingSellVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
+        if self.BHPsharesInStock + self.outstandingBuyVolume + self.outstandingSellVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
             return False
         return True
