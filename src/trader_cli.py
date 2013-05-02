@@ -13,6 +13,11 @@ import trader
 import plugins
 
 
+def my_path(path):
+    """Path to use, given the relative path"""
+    return os.path.join(os.path.dirname(__file__), path)
+
+
 def main():
     """Run the trial, taking market data from stdin"""
     parser = optparse.OptionParser()
@@ -27,7 +32,7 @@ def main():
                       help='strategy evaluator')
     (options, args) = parser.parse_args()
     plugin_manager = yapsy.PluginManager.PluginManager()
-    plugin_manager.setPluginPlaces(['plugins'])
+    plugin_manager.setPluginPlaces([my_path('plugins')])
     plugin_manager.setCategoriesFilter({
         'SignalGenerator': plugins.ISignalGeneratorPlugin,
         'Engine': plugins.IEnginePlugin,
