@@ -19,6 +19,7 @@ class MainFrame(wx.Frame):
     ID_RUN = 2
 
     def __init__(self, *args, **kwargs):
+        """Calls super, then InitUI"""
         super(MainFrame, self).__init__(*args, **kwargs)
         self.InitUI()
 
@@ -102,6 +103,7 @@ class MainFrame(wx.Frame):
         panel.SetSizer(sizer)
 
     def _enable_controls(self, enable=True):
+        """Enable or disable export, close and run"""
         self._item_export.Enable(enable)
         self._item_close.Enable(enable)
         self._item_run.Enable(enable)
@@ -181,6 +183,7 @@ class TabPanel(wx.Panel):
     """A workspace for a given market data file"""
 
     def __init__(self, *args, **kwargs):
+        """Calls super, then InitUI"""
         super(TabPanel, self).__init__(*args, **kwargs)
         self.InitUI()
 
@@ -228,6 +231,7 @@ class TabPanel(wx.Panel):
 
     @staticmethod
     def _plugin_settings(plugin):
+        """Plugin settings helper function"""
         if plugin.details.has_section('Parameters'):
             default = dict(plugin.details.items('Parameters'))
         else:
@@ -235,6 +239,7 @@ class TabPanel(wx.Panel):
         return {'plugin': plugin, 'default': default}
 
     def _add_plugin(self, grid, name, choices, on_config, on_about):
+        """Add plugin helper function"""
         text = wx.StaticText(self, label=name+':')
         label = ''
         if len(choices) > 0:
@@ -292,6 +297,7 @@ class TabPanel(wx.Panel):
                                         engine, strategy_evaluator)
 
     def _config(self, control, plugins):
+        """Config dialog helper function"""
         plugin_name = control.GetValue()
         if plugin_name in plugins:
             plugin = plugins[plugin_name]
@@ -313,6 +319,7 @@ class TabPanel(wx.Panel):
             dialog.Destroy()
 
     def _about(self, control, plugins):
+        """About dialog helper function"""
         message = 'Please choose a plugin'
         caption = 'No plugin chosen'
         plugin_name = control.GetValue()
