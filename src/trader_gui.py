@@ -34,8 +34,8 @@ class MainFrame(wx.Frame):
             'Run': 'Run trial',
             'About': 'Information about this program'
         }
-        self._status_bar = self.CreateStatusBar()
-        self._tool_bar = self.CreateToolBar()
+        self._statusbar = self.CreateStatusBar()
+        self._toolbar = self.CreateToolBar()
         menu_bar = wx.MenuBar()
         menu = wx.Menu()
         item = menu.Append(wx.ID_OPEN, '&Open\tCtrl+O', HELP_STRINGS['Open'])
@@ -51,16 +51,16 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, item)
         menu_bar.Append(menu, '&File')
         menu = wx.Menu()
-        self._item_status_bar = menu.Append(wx.ID_ANY, 'Show &Statusbar',
+        self._item_statusbar = menu.Append(wx.ID_ANY, 'Show &Statusbar',
                                             HELP_STRINGS['Statusbar'],
                                             wx.ITEM_CHECK)
-        self.Bind(wx.EVT_MENU, self.ToggleStatusBar, self._item_status_bar)
-        menu.Check(self._item_status_bar.GetId(), True)
-        self._item_tool_bar = menu.Append(wx.ID_ANY, 'Show &Toolbar',
+        self.Bind(wx.EVT_MENU, self.ToggleStatusBar, self._item_statusbar)
+        menu.Check(self._item_statusbar.GetId(), True)
+        self._item_toolbar = menu.Append(wx.ID_ANY, 'Show &Toolbar',
                                           HELP_STRINGS['Toolbar'],
                                           wx.ITEM_CHECK)
-        self.Bind(wx.EVT_MENU, self.ToggleToolBar, self._item_tool_bar)
-        menu.Check(self._item_tool_bar.GetId(), True)
+        self.Bind(wx.EVT_MENU, self.ToggleToolBar, self._item_toolbar)
+        menu.Check(self._item_toolbar.GetId(), True)
         menu_bar.Append(menu, '&View')
         menu = wx.Menu()
         self._item_run = menu.Append(wx.ID_ANY, '&Run', HELP_STRINGS['Run'])
@@ -72,27 +72,28 @@ class MainFrame(wx.Frame):
         menu_bar.Append(menu, '&Help')
         self.SetMenuBar(menu_bar)
         icon = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN)
-        tool = self._tool_bar.AddLabelTool(wx.ID_OPEN, 'Open', icon,
+        tool = self._toolbar.AddLabelTool(wx.ID_OPEN, 'Open', icon,
                                            shortHelp='Open',
                                            longHelp=HELP_STRINGS['Open'])
         self.Bind(wx.EVT_TOOL, self.OnOpen, tool)
         icon = wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS)
-        tool = self._tool_bar.AddLabelTool(MainFrame.ID_EXPORT, 'Export',
+        tool = self._toolbar.AddLabelTool(MainFrame.ID_EXPORT, 'Export',
                                            icon, shortHelp='Export',
                                            longHelp=HELP_STRINGS['Export'])
         self.Bind(wx.EVT_TOOL, self.OnExport, tool)
-        self._tool_bar.AddSeparator()
+        self._toolbar.AddSeparator()
         icon = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK)
-        tool = self._tool_bar.AddLabelTool(wx.ID_CLOSE, 'Close', icon,
+        tool = self._toolbar.AddLabelTool(wx.ID_CLOSE, 'Close', icon,
                                            shortHelp='Close',
                                            longHelp=HELP_STRINGS['Close'])
         self.Bind(wx.EVT_TOOL, self.OnClose, tool)
-        self._tool_bar.AddSeparator()
+        self._toolbar.AddSeparator()
         icon = wx.Bitmap('resources/run.png')
-        tool = self._tool_bar.AddLabelTool(MainFrame.ID_RUN, 'Run',
+        tool = self._toolbar.AddLabelTool(MainFrame.ID_RUN, 'Run',
                                            icon, shortHelp='Run',
                                            longHelp=HELP_STRINGS['Run'])
         self.Bind(wx.EVT_TOOL, self.OnRun, tool)
+        self._toolbar.Realize()
         self._enable_controls(False)
         panel = wx.Panel(self)
         self._notebook = wx.Notebook(panel)
@@ -104,9 +105,9 @@ class MainFrame(wx.Frame):
         self._item_export.Enable(enable)
         self._item_close.Enable(enable)
         self._item_run.Enable(enable)
-        self._tool_bar.EnableTool(MainFrame.ID_EXPORT, enable)
-        self._tool_bar.EnableTool(wx.ID_CLOSE, enable)
-        self._tool_bar.EnableTool(MainFrame.ID_RUN, enable)
+        self._toolbar.EnableTool(MainFrame.ID_EXPORT, enable)
+        self._toolbar.EnableTool(wx.ID_CLOSE, enable)
+        self._toolbar.EnableTool(MainFrame.ID_RUN, enable)
 
     def OnOpen(self, e):
         """Open market data file"""
@@ -116,11 +117,10 @@ class MainFrame(wx.Frame):
                             style=wx.OPEN|wx.MULTIPLE)
         count = self._notebook.GetPageCount()
         if dlg.ShowModal() == wx.ID_OK:
-            directory = dlg.GetDirectory()
-            for filename in dlg.GetFilenames():
+            for path in dlg.GetPaths():
                 panel = TabPanel(self._notebook)
-                panel.Open(directory, filename)
-                self._notebook.AddPage(panel, filename, True)
+                panel.Open(path)
+                self._notebook.AddPage(panel, os.path.basename(path), True)
         if count == 0 and self._notebook.GetPageCount() > 0:
             self._enable_controls()
         dlg.Destroy()
@@ -153,17 +153,17 @@ class MainFrame(wx.Frame):
 
     def ToggleStatusBar(self, e):
         """Toggle the statusbar visibility"""
-        if self._item_status_bar.IsChecked():
-            self._status_bar.Show()
+        if self._item_statusbar.IsChecked():
+            self._statusbar.Show()
         else:
-            self._status_bar.Hide()
+            self._statusbar.Hide()
 
     def ToggleToolBar(self, e):
         """Toggle the toolbar visibility"""
-        if self._item_tool_bar.IsChecked():
-            self._tool_bar.Show()
+        if self._item_toolbar.IsChecked():
+            self._toolbar.Show()
         else:
-            self._tool_bar.Hide()
+            self._toolbar.Hide()
 
     def OnRun(self, e):
         """Run the simulation"""
@@ -180,17 +180,41 @@ class MainFrame(wx.Frame):
 class TabPanel(wx.Panel):
     """A workspace for a given market data file"""
 
-    def Open(self, directory, filename):
-        """Open the market data file"""
+    def __init__(self, *args, **kwargs):
+        super(TabPanel, self).__init__(*args, **kwargs)
+        self.InitUI()
+
+    def InitUI(self):
+        """Initialize the workspace"""
         pass
+
+    def Open(self, path):
+        """Open the market data file"""
+        market_data = open(path)
+        dict_reader = csv.DictReader(market_data)
+        self._market_data = [line for line in dict_reader]
+        self._fieldnames = dict_reader.fieldnames
+        market_data.close()
 
     def Export(self, path):
         """Export the algorithmic trades file"""
-        pass
+        if self._trades is None:
+            self.Run()
+        export = open(path, 'w')
+        dict_writer = csv.DictWriter(export, self._fieldnames)
+        fieldnames = {}
+        for fieldname in self._fieldnames:
+            fieldnames[fieldname] = fieldname
+        dict_writer.writerow(fieldnames)
+        dict_writer.writerows(trades)
+        export.close()
 
     def Run(self):
         """Run the simulation"""
-        pass
+        self._trades = trader.run_trial(self._market_data,
+                                        self._signal_generator,
+                                        self._engine,
+                                        self._strategy_evaluator)
 
 
 def main():
