@@ -11,6 +11,7 @@ class OrderBook:
     def __init__(self):
         self.buys = []
         self.sells = []
+        self.lastTrade = None
 
     def addToBuy(self, newRecord, currentTime):
         self._insortBuy(newRecord)
@@ -74,7 +75,7 @@ class OrderBook:
         for buyOrd in self.buys:
             while nextSell < len(self.sells):
                 sellOrd = self.sells[nextSell]
-                if (float(buyOrd['Price']) >= float(sellOrd['Price'])):
+                if (buyOrd['Price'] == 'MP' or sellOrd['Price'] == 'MP' or float(buyOrd['Price']) >= float(sellOrd['Price'])):
                     # Match the trades
                     if int(buyOrd['Volume']) > int(sellOrd['Volume']):
                         trades.append(self._createTrade(buyOrd, sellOrd, sellOrd['Volume'], currentTime))
@@ -103,14 +104,26 @@ class OrderBook:
         if len(buysToDelete) > 0:
             for delBuy in buysToDelete:
                 self.buys.remove(delBuy)
+        
+        if len(trades) > 0:
+            self.lastTrade = trades[len(trades) - 1]
         return trades
 
     def _createTrade(self, buyOrder, sellOrder, volume, currentTime):
         trade = buyOrder.copy()
         trade['Record Type'] = "TRADE"
-        trade['Price'] = sellOrder['Price']
+        
+        if sellOrder['Price'] == 'MP' and buyOrder['Price'] == 'MP':
+            trade['Price'] = self.lastTrade['Price']
+        elif sellOrder['Price'] == 'MP' and buyOrder['Price'] != 'MP':
+            trade['Price'] = buyOrder['Price']
+        elif sellOrder['Price'] != 'MP' and buyOrder['Price'] == 'MP':
+            trade['Price'] = sellOrder['Price']
+        else:
+            trade['Price'] = sellOrder['Price']
+        
         trade['Volume'] = volume    
-        trade['Value'] = int(volume) * float(sellOrder['Price'])
+        trade['Value'] = int(volume) * float(trade['Price'])
         trade['Ask ID'] = sellOrder['Ask ID']
         trade['Bid/Ask'] = ""
         trade['Seller Broker ID'] = sellOrder['Seller Broker ID']
@@ -119,22 +132,24 @@ class OrderBook:
         
     def _insortSell(self, record):
         count = 0
-        insertPrice = float(record['Price'])
-        for order in self.sells:
-            if insertPrice < float(order['Price']):
-                break
-            else:
-                count += 1
+        if record['Price'] != 'MP':
+            insertPrice = float(record['Price'])
+            for order in self.sells:
+                if order['Price'] != 'MP' and insertPrice < float(order['Price']):
+                    break
+                else:
+                    count += 1
         self.sells.insert(count, record)
 
     def _insortBuy(self, record):
         count = 0
-        insertPrice = float(record['Price'])
-        for order in self.buys:
-            if insertPrice > float(order['Price']):
-                break
-            else:
-                count += 1
+        if record['Price'] != 'MP':
+            insertPrice = float(record['Price'])
+            for order in self.buys:
+                if order['Price'] != 'MP' and insertPrice > float(order['Price']):
+                    break
+                else:
+                    count += 1
         self.buys.insert(count, record)
 
     def printBook(self):
@@ -155,8 +170,9 @@ class InitialEngine(plugins.IEnginePlugin):
 
     def __call__(self, record):
         trades = []
-        self.currentTime = datetime.strptime(record['Time'], '%H:%M:%S.%f')
-        trades.extend(self._addOrder(record, self.currentTime))
+        if record != None: # this might be None when a trader has nothing to dump at end of day
+            self.currentTime = datetime.strptime(record['Time'], '%H:%M:%S.%f')
+            trades.extend(self._addOrder(record, self.currentTime))
         return trades
 
     def _addOrder(self, order, currentTime):

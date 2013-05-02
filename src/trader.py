@@ -23,9 +23,10 @@ def run_trial(market_data, signal_generator,
         # We need to filter existing trades out, because signal generator now accepts trades
         if ((recordType != 'TRADE') and (recordType != 'CANCEL_TRADE') and (recordType != 'OFFTR')):
             engine_time = (trading_record['Date'], trading_record['Time'])
-            while len(orders) > 0 and orders[0][:2] < engine_time:
-                trades.extend(engine(heapq.heappop(orders)[3]))
-            newtrades = engine(trading_record)
+            newtrades = []
+            while len(orders) > 0 and orders[0][:2] <= engine_time:
+                newtrades.extend(engine(heapq.heappop(orders)[3]))
+            newtrades.extend(engine(trading_record))
             trades.extend(newtrades)
             # Inform the signal generator about the new trades made
             for newtrade in newtrades:
@@ -39,9 +40,16 @@ def run_trial(market_data, signal_generator,
                                (order['Date'], order['Time'], count, order))
                 next(count)
     for i in range(len(orders)):
-        trades.extend(engine(heapq.heappop(orders)[3]))
-    #for order in signal_generator():
-    #    trades.extend(engine(order))
+        newtrades = []
+        currentorder = heapq.heappop(orders)[3]
+        newtrades.extend(engine(currentorder))
+        for order in signal_generator(currentorder):
+            newtrades.extend(engine(order))              
+        trades.extend(newtrades)
+    
+    # Tell the signal generator its the end of the day
+    trades.extend(engine(signal_generator(None,True)))
+    trades = sorted(trades, key=lambda trade: trade['Time'])
     strategy_evaluator(trades)
     return trades
 
