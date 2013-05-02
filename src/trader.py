@@ -49,7 +49,7 @@ def run_trial(market_data, signal_generator,
     
     # Tell the signal generator its the end of the day
     trades.extend(engine(signal_generator(None,True)))
-    
+    trades = sorted(trades, key=lambda trade: trade['Time'])
     strategy_evaluator(trades)
     return trades
 

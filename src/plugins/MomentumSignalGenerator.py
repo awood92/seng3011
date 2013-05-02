@@ -66,6 +66,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                             buy['Price'] = 'MP' #trading_record['Price'] # we can increase this if we want
                             buy['Volume'] = self.buyPacketSize # Determine this based off market volume maybe?
                             buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
+                            buy['Ask ID'] = ''
                             buy['Buyer Broker ID'] = 'Algorithmic'
                             buy['Seller Broker ID'] = ''
                             orders.append(buy)
@@ -93,7 +94,8 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                                 self.BHPsharesInStock = 0
                             
                             self.outstandingSellVolume += int(sell['Volume'])
-                            sell['Bid ID'] = 'Algorithmic' + str(len(self.myorders)) # Keeps this unique
+                            sell['Ask ID'] = 'Algorithmic' + str(len(self.myorders)) # Keeps this unique
+                            sell['Bid ID'] = ''
                             sell['Buyer Broker ID'] = ''
                             sell['Seller Broker ID'] = 'Algorithmic'
                             orders.append(sell)
