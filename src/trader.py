@@ -63,8 +63,7 @@ def run_trial(market_data, signal_generator,
     marketTrades.extend(endofdaydump)
     
     trades = sorted(trades, key=lambda trade: trade['Time'])
-    strategy_evaluator(trades)
-    strategy_evaluator.evaluateImpact(marketTrades);
+    strategy_evaluator(trades,marketTrades)
     return trades
 
 if __name__ == '__main__':

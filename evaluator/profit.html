@@ -26,6 +26,7 @@ body {
 
 </style>
 <body>
+  <p><h3><u>Profit of trading algorithm</u></h3><b>Blue line:</b> Profit ($)</p>
 <script src="d3.v3.js"></script>
 <script>
 
@@ -81,7 +82,7 @@ d3.tsv("data.tsv", function(error, data) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Price ($)");
+      .text("Profit ($)");
 
   svg.append("path")
       .datum(data)

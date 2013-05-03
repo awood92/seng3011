@@ -23,10 +23,11 @@ class MainFrame(wx.Frame):
 
     def __init__(self, *args, **kwargs):
         """Calls super, then InitUI"""
-        super(MainFrame, self).__init__(*args, **kwargs)
+        super(MainFrame, self).__init__(*args, size=(800,600))
         self.InitUI()
 
     def InitUI(self):
+        self.Centre()
         """Initialize the window"""
         HELP_STRINGS = {
             'Open': 'Open a market data file',

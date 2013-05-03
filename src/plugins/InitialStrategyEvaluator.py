@@ -7,8 +7,9 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    def __call__(self, trades):
+    def __call__(self, trades,marketTrades):
         self.trades = trades
+        self.marketTrades = marketTrades
         self.buyTotal = 0
         self.volumeOfBuys = 0
         self.sellTotal = 0
@@ -48,23 +49,23 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         f.write('Average buy price: $'+str(buyAverage)+'\n')
         f.write('Average sell price: $'+str(sellAverage))
         f.close()
-        
-    def evaluateImpact(self,trades):
+
         graph = open("evaluator/impact.tsv","w+")
         graph.write("date\tourPrice\tactualPrice\n")
-        for trade in trades:
+        for trade in self.marketTrades:
             if trade['Time'] >= '10:05:00':
                 lastOurPrice = trade['Price'];
                 lastActualPrice = trade['Price'];
                 break
 
-        for trade in trades:
+        for trade in self.marketTrades:
             if trade['Time'] >= '10:05:00':
                 if trade['Record Type'] == 'MARKET':
                     trade['Time'] = trade['Time'] + '000'
                     lastActualPrice = trade['Price']
                 else:
                     lastOurPrice = trade['Price']
-                graph.write(trade['Time']+"\t"+lastOurPrice+"\t"+lastActualPrice+"\n")
+                graph.write(trade['Time']+"\t"+ lastOurPrice+"\t"+lastActualPrice+"\n")
 
         graph.close()
+       
