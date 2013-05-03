@@ -292,7 +292,7 @@ class TabPanel(wx.Panel):
         for fieldname in self._fieldnames:
             fieldnames[fieldname] = fieldname
         dict_writer.writerow(fieldnames)
-        dict_writer.writerows(trades)
+        dict_writer.writerows(self._trades)
         export.close()
 
     def Run(self):
