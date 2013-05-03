@@ -417,7 +417,7 @@ class ConfigDialog(wx.Dialog):
 
     def OnCancel(self, e):
         """Close the window and return cancel"""
-        self.EndModal(wx.ID_CANCEassignmentL)
+        self.EndModal(wx.ID_CANCEL)
 
     def OnDefault(self, e):
         """Reset entered values to default"""
