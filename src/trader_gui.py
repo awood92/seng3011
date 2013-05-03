@@ -12,11 +12,14 @@ import trader
 import plugins
 import copy
 
+import webbrowser
+
 class MainFrame(wx.Frame):
     """The main window"""
 
     ID_EXPORT = 1
     ID_RUN = 2
+    ID_EVALUATE = 3
 
     def __init__(self, *args, **kwargs):
         """Calls super, then InitUI"""
@@ -33,7 +36,8 @@ class MainFrame(wx.Frame):
             'Statusbar': 'Toggle visibility of statusbar',
             'Toolbar': 'Toggle visibility of toolbar',
             'Run': 'Run trial',
-            'About': 'Information about this program'
+            'About': 'Information about this program',
+            'Show Evaluation': 'Preview evaluation after simulation is run'
         }
         self._statusbar = self.CreateStatusBar()
         self._toolbar = self.CreateToolBar()
@@ -94,6 +98,12 @@ class MainFrame(wx.Frame):
                                            icon, shortHelp='Run',
                                            longHelp=HELP_STRINGS['Run'])
         self.Bind(wx.EVT_TOOL, self.OnRun, tool)
+        self._toolbar.AddSeparator()
+        icon = wx.Bitmap(my_path('resources/evaluate.png'))
+        tool = self._toolbar.AddLabelTool(MainFrame.ID_EVALUATE, 'Show Evaluation',
+                                           icon, shortHelp='Show Evaluation',
+                                           longHelp=HELP_STRINGS['Show Evaluation'])
+        self.Bind(wx.EVT_TOOL, self.OnShowEvaluation, tool)
         self._toolbar.Realize()
         self._enable_controls(False)
         panel = wx.Panel(self)
@@ -171,7 +181,13 @@ class MainFrame(wx.Frame):
         self._enable_controls(False)
         self._notebook.GetCurrentPage().Run()
         self._enable_controls(True)
-
+        
+    def OnShowEvaluation(self, e):
+        """Show the evaluation"""
+        new = 2
+        url = "http://127.0.0.1:8000/evaluator/"
+        webbrowser.open(url,new=new)
+        
     def OnAbout(self, e):
         """About the program"""
         dialog = wx.MessageDialog(self, 'Algorithmic Trading System',
@@ -213,7 +229,7 @@ class TabPanel(wx.Panel):
         for plugin in category_plugins:
             plugin_settings = TabPanel._plugin_settings(plugin)
             self._strategy_evaluators[plugin.details.get('Core', 'Name')] = plugin_settings
-        grid = wx.FlexGridSizer(3, 4, 3, 3)
+        grid = wx.FlexGridSizer(4, 4, 3, 3)
         self._signal_generator = self._add_plugin(grid, 'Signal Generator',
                                                   self._signal_generators.keys(),
                                                   self.OnConfigSignalGenerator,
@@ -299,7 +315,7 @@ class TabPanel(wx.Panel):
         self._trades = trader.run_trial(copy.deepcopy(self._market_data), signal_generator,
                                         engine, strategy_evaluator, progressdialog)
         progressdialog.Destroy()
-
+    
     def _config(self, control, plugins):
         plugin_name = control.GetValue()
         if plugin_name in plugins:
@@ -400,7 +416,7 @@ class ConfigDialog(wx.Dialog):
 
     def OnCancel(self, e):
         """Close the window and return cancel"""
-        self.EndModal(wx.ID_CANCEL)
+        self.EndModal(wx.ID_CANCEassignmentL)
 
     def OnDefault(self, e):
         """Reset entered values to default"""
@@ -423,7 +439,6 @@ def main():
     app = wx.App(False)
     MainFrame(None, title='Algorithmic Trading System').Show()
     app.MainLoop()
-
-
+    
 if __name__ == '__main__':
     main()

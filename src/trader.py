@@ -10,6 +10,7 @@ def run_trial(market_data, signal_generator,
               engine, strategy_evaluator,progressdialog=None):
     """Run the experiment with the given market data"""
     trades = []
+    marketTrades = []
     orders = []
     count = itertools.count()
 
@@ -32,6 +33,7 @@ def run_trial(market_data, signal_generator,
                 newtrades.extend(engine(heapq.heappop(orders)[3]))
             newtrades.extend(engine(trading_record))
             trades.extend(newtrades)
+            marketTrades.extend(newtrades)
             # Inform the signal generator about the new trades made
             for newtrade in newtrades:
                 for order in signal_generator(newtrade):
@@ -43,6 +45,9 @@ def run_trial(market_data, signal_generator,
                 heapq.heappush(orders,
                                (order['Date'], order['Time'], count, order))
                 next(count)
+        elif trading_record['Record Type'] == 'TRADE':
+            trading_record['Record Type'] = 'MARKET'
+            marketTrades.append(trading_record)
     for i in range(len(orders)):
         newtrades = []
         currentorder = heapq.heappop(orders)[3]
@@ -50,11 +55,16 @@ def run_trial(market_data, signal_generator,
         for order in signal_generator(currentorder):
             newtrades.extend(engine(order))              
         trades.extend(newtrades)
+        marketTrades.extend(newtrades)
     
     # Tell the signal generator its the end of the day
-    trades.extend(engine(signal_generator(None,True)))
+    endofdaydump = engine(signal_generator(None,True))
+    trades.extend(endofdaydump)
+    marketTrades.extend(endofdaydump)
+    
     trades = sorted(trades, key=lambda trade: trade['Time'])
     strategy_evaluator(trades)
+    strategy_evaluator.evaluateImpact(marketTrades);
     return trades
 
 if __name__ == '__main__':

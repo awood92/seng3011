@@ -17,7 +17,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         self.numberOfSells = 0
         self.evaluate()
     def evaluate(self):
-        graph = open("data.tsv","w+")
+        graph = open("evaluator/data.tsv","w+")
         graph.write("date\tclose\n")
         total = 0
         for trade in self.trades:
@@ -41,10 +41,30 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
             sellAverage = self.sellTotal/self.volumeOfSells
         
         graph.close()
-        f = open("Report.txt","w+")
+        f = open("evaluator/Report.txt","w+")
         f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')
         f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
         f.write('Profit: $'+str(self.sellTotal-self.buyTotal)+'\n')
         f.write('Average buy price: $'+str(buyAverage)+'\n')
         f.write('Average sell price: $'+str(sellAverage))
         f.close()
+        
+    def evaluateImpact(self,trades):
+        graph = open("evaluator/impact.tsv","w+")
+        graph.write("date\tourPrice\tactualPrice\n")
+        for trade in trades:
+            if trade['Time'] >= '10:05:00':
+                lastOurPrice = trade['Price'];
+                lastActualPrice = trade['Price'];
+                break
+
+        for trade in trades:
+            if trade['Time'] >= '10:05:00':
+                if trade['Record Type'] == 'MARKET':
+                    trade['Time'] = trade['Time'] + '000'
+                    lastActualPrice = trade['Price']
+                else:
+                    lastOurPrice = trade['Price']
+                graph.write(trade['Time']+"\t"+lastOurPrice+"\t"+lastActualPrice+"\n")
+
+        graph.close()
