@@ -84,7 +84,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                             sell = trading_record.copy()
                             sell['Record Type'] = 'ENTER'
                             sell['Bid/Ask'] = 'A'
-                            sell['Price'] = 'MP' #trading_record['Price'] # we can decrease this if we want
+                            sell['Price'] = 'MP'
                             
                             if self.BHPsharesInStock >= self.sellPacketSize:
                                 sell['Volume'] = str(self.sellPacketSize)
