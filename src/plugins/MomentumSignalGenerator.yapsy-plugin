@@ -8,8 +8,10 @@ Author = George El Boustani
 Version = 0.1
 
 [Parameters]
-momentumInterval = 6
-historicalOutlook = 6
+minimumAverageSamplesBeforeAction = 6
 sellPacketSize = 50
 buyPacketSize = 50
-maxBuyPacketSurplus = 15
+maxBuyPacketSurplus = 1
+minimumTimeBeforeAction = 10:05:00.000
+buyDistanceFromMeanThreshold = 0.002
+sellDistanceFromMeanThreshold = 0.002

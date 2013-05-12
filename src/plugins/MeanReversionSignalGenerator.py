@@ -51,12 +51,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             self.tradesViewed.insert(0,trading_record)
             self.updateRunningAveragePrice(trading_record)
             
-            #if self.belowAverage:
-            #    self.consistentMovementPeriod += 1
-            #else:
-            #    self.rising = True
-            #    self.consistentMovementPeriod = 1
-            
             if len(self.tradesViewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
                 distance = self.distanceFromMean(float(trading_record['Price']))
                 if distance >= self.sellDistanceFromMeanThreshold:

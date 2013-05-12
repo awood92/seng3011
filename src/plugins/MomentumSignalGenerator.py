@@ -8,23 +8,27 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
     def setup(self, config):
         """Reads momentum strategy parameters from the config file"""
         self.started = False
-        # This is the interval for consistent movement before registering momentum
-        self.momentumInterval = config.getint('Parameters','momentumInterval')
-        self.historicalOutlook = config.getint('Parameters','historicalOutlook')
-        if self.historicalOutlook < 2:
-            self.historicalOutlook = 2
+        
+        self.minimumAverageSamplesBeforeAction = config.getfloat('Parameters','minimumAverageSamplesBeforeAction')
+        self.minimumTimeBeforeAction = config.get('Parameters','minimumTimeBeforeAction')
+        
+        self.buyDistanceFromMeanThreshold = config.getfloat('Parameters','buyDistanceFromMeanThreshold')
+        self.sellDistanceFromMeanThreshold = config.getfloat('Parameters','sellDistanceFromMeanThreshold')
+        
         self.buyPacketSize = config.getint('Parameters','buyPacketSize')
         self.sellPacketSize = config.getint('Parameters','sellPacketSize')
         self.maxBuyPacketSurplus = config.getint('Parameters','maxBuyPacketSurplus')
-        self.consistentMovementPeriod = 0
-        self.rising = False
+
         # All the orders which have informed this signal generator
         self.ordersviewed = []
         # All the trades which have informed this signal generator
         self.tradesviewed = []
+        self.averagePrice = 0
+        
         self.BHPsharesInStock = 0 # convert this into a dictionary for multiple instruments
         self.myorders = []
         self.outstandingSellVolume = 0
+        self.outstandingBuyVolume = 0
         self.currentTime = '00:00:00.000'
 
     def __call__(self, trading_record=None, endofday=False):
@@ -46,73 +50,55 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                 self.outstandingSellVolume -= int(trading_record['Volume'])
             
             self.tradesviewed.insert(0,trading_record)
-            if len(self.tradesviewed) > self.historicalOutlook:
-                self.tradesviewed.pop()
-            if len(self.tradesviewed) == self.historicalOutlook:
-                averageReturn = self.calculateAverageReturn()
+            self.updateRunningAveragePrice(trading_record)
+            
+            if len(self.tradesviewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
+                distance = self.distanceFromMean(float(trading_record['Price']))
+                
                 # Buy trading signal
-                if averageReturn > 0:
-                    if self.rising:
-                        self.consistentMovementPeriod += 1
-                    else:
-                        self.rising = True
-                        self.consistentMovementPeriod = 1
-
-                    if self.consistentMovementPeriod == self.momentumInterval:
-                        if self.shouldBuyMoreStocks(trading_record['Instrument']) == True:
-                            buy = trading_record.copy()
-                            buy['Record Type'] = 'ENTER'
-                            buy['Bid/Ask'] = 'B'
-                            buy['Price'] = 'MP' #trading_record['Price'] # we can increase this if we want
-                            buy['Volume'] = self.buyPacketSize # Determine this based off market volume maybe?
-                            buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
-                            buy['Ask ID'] = ''
-                            buy['Buyer Broker ID'] = 'Algorithmic'
-                            buy['Seller Broker ID'] = ''
-                            orders.append(buy)
-                            self.myorders.append(buy)                        
+                if distance >= self.buyDistanceFromMeanThreshold:
+                    if self.shouldBuyMoreStocks(trading_record['Instrument']) == True:
+                        buy = trading_record.copy()
+                        buy['Record Type'] = 'ENTER'
+                        buy['Bid/Ask'] = 'B'
+                        buy['Price'] = 'MP' #trading_record['Price'] # we can increase this if we want
+                        buy['Volume'] = self.buyPacketSize # Determine this based off market volume maybe?
+                        buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
+                        buy['Ask ID'] = ''
+                        buy['Buyer Broker ID'] = 'Algorithmic'
+                        buy['Seller Broker ID'] = ''
+                        orders.append(buy)
+                        self.outstandingBuyVolume += int(buy['Volume'])
+                        self.myorders.append(buy)                        
                 # Sell trading signal
-                elif averageReturn < 0:
-                    if not self.rising:
-                        self.consistentMovementPeriod += 1
-                    else:
-                        self.rising = False
-                        self.consistentMovementPeriod = 1
-                    
-                    if self.consistentMovementPeriod == self.momentumInterval:
-                        if self.BHPsharesInStock > 0:
-                            sell = trading_record.copy()
-                            sell['Record Type'] = 'ENTER'
-                            sell['Bid/Ask'] = 'A'
-                            sell['Price'] = 'MP'
-                            
-                            if self.BHPsharesInStock >= self.sellPacketSize:
-                                sell['Volume'] = str(self.sellPacketSize)
-                                self.BHPsharesInStock -= self.sellPacketSize
-                            else:
-                                sell['Volume'] = str(self.BHPsharesInStock)
-                                self.BHPsharesInStock = 0
-                            
-                            self.outstandingSellVolume += int(sell['Volume'])
-                            sell['Ask ID'] = 'Algorithmic' + str(len(self.myorders)) # Keeps this unique
-                            sell['Bid ID'] = ''
-                            sell['Buyer Broker ID'] = ''
-                            sell['Seller Broker ID'] = 'Algorithmic'
-                            orders.append(sell)
-                            self.myorders.append(sell)
+                elif distance <= -self.sellDistanceFromMeanThreshold:
+                    if self.BHPsharesInStock > 0:
+                        sell = trading_record.copy()
+                        sell['Record Type'] = 'ENTER'
+                        sell['Bid/Ask'] = 'A'
+                        sell['Price'] = 'MP'
+                        
+                        if self.BHPsharesInStock >= self.sellPacketSize:
+                            sell['Volume'] = str(self.sellPacketSize)
+                            self.BHPsharesInStock -= self.sellPacketSize
+                        else:
+                            sell['Volume'] = str(self.BHPsharesInStock)
+                            self.BHPsharesInStock = 0
+                        
+                        self.outstandingSellVolume += int(sell['Volume'])
+                        sell['Ask ID'] = 'Algorithmic' + str(len(self.myorders)) # Keeps this unique
+                        sell['Bid ID'] = ''
+                        sell['Buyer Broker ID'] = ''
+                        sell['Seller Broker ID'] = 'Algorithmic'
+                        orders.append(sell)
+                        self.myorders.append(sell)
         return orders
     
-    def calculateAverageReturn(self):
-        returns = []
-        prevTradePrice = -1
-        for currTrade in self.tradesviewed:
-            if prevTradePrice != -1:
-                returns.append((float(currTrade['Price'])-prevTradePrice)/prevTradePrice)
-            prevTradePrice = float(currTrade['Price'])
-        averageReturn = 0
-        for ret in returns:
-            averageReturn += ret
-        return averageReturn/(self.historicalOutlook-1)
+    def distanceFromMean(self,trade_price):
+        return (trade_price-self.averagePrice)/self.averagePrice
+    
+    def updateRunningAveragePrice(self,trading_record):
+        self.averagePrice = (self.averagePrice*(len(self.tradesviewed)-1) + float(trading_record['Price']))/float(len(self.tradesviewed))        
     
     def createDumpShareSell(self):
         sell = {
@@ -138,6 +124,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         
         return sell
     def shouldBuyMoreStocks(self, instrument):
-        if self.BHPsharesInStock + self.outstandingSellVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
+        if self.BHPsharesInStock + self.outstandingSellVolume + self.outstandingBuyVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
             return False
         return True
