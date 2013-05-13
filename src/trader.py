@@ -12,16 +12,18 @@ def run_trial(market_data, signal_generator,
     trades = []
     marketTrades = []
     orders = []
+    algorithmicorders = []
     count = itertools.count()
 
     # Get the signal generators initial orders i.e. before market opens
     for order in signal_generator():
+        algorithmicorders.append(order)
         heapq.heappush(orders, (order['Date'], order['Time'], count, order))
         next(count)
         
     tradingrecordsprocessed = 0
     for trading_record in market_data:
-        if not "OB0" in trading_record['Qualifiers']:
+        if trading_record['Qualifiers'] != None and (not "OB0" in trading_record['Qualifiers']):
             tradingrecordsprocessed += 1
             if progressdialog != None and tradingrecordsprocessed%1000 == 0:
                 progressdialog.Update(tradingrecordsprocessed,"Processing records: "+str(tradingrecordsprocessed)+" complete.")
@@ -38,11 +40,13 @@ def run_trial(market_data, signal_generator,
                 # Inform the signal generator about the new trades made
                 for newtrade in newtrades:
                     for order in signal_generator(newtrade):
+                        algorithmicorders.append(order)
                         heapq.heappush(orders,
                                        (order['Date'], order['Time'], count, order))
                         next(count)        
                 # Inform the signal generator about the new orders placed
                 for order in signal_generator(trading_record):
+                    algorithmicorders.append(order)
                     heapq.heappush(orders,
                                    (order['Date'], order['Time'], count, order))
                     next(count)
@@ -54,18 +58,22 @@ def run_trial(market_data, signal_generator,
         currentorder = heapq.heappop(orders)[3]
         newtrades.extend(engine(currentorder))
         for order in signal_generator(currentorder):
+            algorithmicorders.append(order)
             newtrades.extend(engine(order))              
         trades.extend(newtrades)
         marketTrades.extend(newtrades)
     
     # Tell the signal generator its the end of the day
-    endofdaydump = engine(signal_generator(None,True))
+    lastorder = signal_generator(None,True)
+    if lastorder != None:
+        algorithmicorders.append(lastorder)
+    endofdaydump = engine(lastorder)
     trades.extend(endofdaydump)
     marketTrades.extend(endofdaydump)
     
     trades = sorted(trades, key=lambda trade: trade['Time'])
     marketTrades = sorted(marketTrades, key=lambda trade: trade['Time'])
-    strategy_evaluator(trades,marketTrades)
+    strategy_evaluator(trades,marketTrades,algorithmicorders)
     return trades
 
 if __name__ == '__main__':

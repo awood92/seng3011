@@ -7,9 +7,10 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    def __call__(self, trades,marketTrades):
+    def __call__(self, trades,marketTrades,algorithmicorders):
         self.trades = trades
         self.marketTrades = marketTrades
+        self.algorithmicorders = algorithmicorders
         self.buyTotal = 0
         self.volumeOfBuys = 0
         self.sellTotal = 0
@@ -47,7 +48,17 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
         f.write('Profit: $'+str(self.sellTotal-self.buyTotal)+'\n')
         f.write('Average buy price: $'+str(buyAverage)+'\n')
-        f.write('Average sell price: $'+str(sellAverage))
+        f.write('Average sell price: $'+str(sellAverage) + '\n')
+        
+        f.write('\nORDERS:\n')
+        for algoorder in self.algorithmicorders:
+            f.write(algoorder["Date"] + "\t" + algoorder['Time'] + "\t\t" + algoorder['Bid/Ask'] + "\t" + str(algoorder['Volume']) + "\t" + algoorder['Price'] + "\n")
+        
+        f.write('\nTRADES:\n')
+        for trade in self.trades:
+            if trade['Buyer Broker ID'] == 'Algorithmic' or trade['Seller Broker ID'] == 'Algorithmic':
+                f.write(trade["Date"] + "\t" + trade['Time'] + "\t" + str(trade['Volume']) + "\t" + trade['Price'] + "\n")
+        
         f.close()
 
         graph = open("evaluator/impact.tsv","w+")
