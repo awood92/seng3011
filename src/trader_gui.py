@@ -112,6 +112,10 @@ class MainFrame(wx.Frame):
         sizer = wx.BoxSizer()
         sizer.Add(self._notebook, 1, wx.EXPAND)
         panel.SetSizer(sizer)
+        
+        panel = WelcomeTabPanel(self._notebook)
+        self._notebook.AddPage(panel, "Welcome", True)
+        self._enable_controls()
 
     def _enable_controls(self, enable=True):
         self._item_export.Enable(enable)
@@ -374,6 +378,48 @@ class TabPanel(wx.Panel):
         """Show modal about dialog"""
         self._about(self._strategy_evaluator, self._strategy_evaluators)
 
+class WelcomeTabPanel(wx.Panel):
+    """A workspace for a given market data file"""
+
+    def __init__(self, *args, **kwargs):
+        """Calls super, then InitUI"""
+        super(WelcomeTabPanel, self).__init__(*args, **kwargs)
+        self.InitUI()
+
+    def InitUI(self):
+        """Initialize the workspace"""
+        title = wx.StaticText(self, -1, "Algorithmic Trading System")
+        title.SetFont(wx.Font(30, wx.SWISS, wx.NORMAL, wx.BOLD))
+        title.SetForegroundColour((255,0,0)) # set text color
+        
+        description = wx.StaticText(self, -1, "Welcome to the algorthmic trading system. Use this system to simulate algorithmic traders in hisotrical market conditions \n\nInstructions:")
+        description.SetFont(wx.Font(13, wx.SWISS, wx.NORMAL, wx.BOLD))
+        description.SetForegroundColour((0,0,255)) # set text color
+        
+        instructions = wx.StaticText(self, -1, """1) Load the market data file you wish to use for the simulation
+2) Select the plugins you want to use. This involves choosing the engine, strategy and the evaluator
+3) Configure the plugins appropriately, or just use the default values
+4) Click the play button at the top to run the simulation
+5) Click the magnifying glass to preview the evaluation reports
+""")
+        instructions.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
+        
+        box = wx.BoxSizer(wx.VERTICAL)
+        box.Add(title, 0, wx.CENTRE|wx.ALL, 5)
+        box.Add(description, 0, wx.EXPAND|wx.ALL, 5)
+        box.Add(instructions, 0, wx.EXPAND|wx.ALL, 5)
+        self.SetSizer(box)
+        
+        
+        
+    def Open(self, path):
+        """Open the market data file"""
+
+    def Export(self, path):
+        """Export the algorithmic trades file"""
+
+    def Run(self):
+        """Run the simulation"""
 
 class ConfigDialog(wx.Dialog):
     """Plugin configuration dialog"""
