@@ -43,9 +43,11 @@ class InitialSignalGenerator(plugins.ISignalGeneratorPlugin):
         else:
             self.orders = [buy, sell]
 
-    def __call__(self, trading_record=None):
+    def __call__(self, trading_record=None, endofday=False):
         orders = []
         if not self.started:
             self.started = True
             orders = self.orders
+        if endofday:
+            return None
         return orders

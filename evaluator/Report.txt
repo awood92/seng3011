@@ -1,0 +1,5 @@
+Bought :500 shares
+Sold :0 shares
+Profit: $-17490.5
+Average buy price: $34.981
+Average sell price: $0

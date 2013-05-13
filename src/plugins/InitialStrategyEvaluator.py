@@ -7,26 +7,65 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    trades = []
-    buyTotal = 0
-    numberOfBuys = 0
-    sellTotal = 0
-    numberOfSells = 0
-    
-    def __call__(self, trades):
+    def __call__(self, trades,marketTrades):
         self.trades = trades
+        self.marketTrades = marketTrades
+        self.buyTotal = 0
+        self.volumeOfBuys = 0
+        self.sellTotal = 0
+        self.volumeOfSells = 0
+        self.numberOfBuys = 0
+        self.numberOfSells = 0
         self.evaluate()
     def evaluate(self):
+        graph = open("evaluator/data.tsv","w+")
+        graph.write("date\tclose\n")
+        total = 0
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
+                total -= amount
                 self.buyTotal += amount
-                self.numberOfBuys+=int(trade['Volume'])
-            elif trade['Seller Broker ID'] == 'Algorithmic':
+                self.volumeOfBuys += int(trade['Volume'])
+                
+            if trade['Seller Broker ID'] == 'Algorithmic':
+                total += amount                
                 self.sellTotal += amount
-                self.numberOfSells+=int(trade['Volume'])
-        f = open("Report.txt","w+")
-        f.write('Bought :'+str(self.numberOfBuys)+' shares\n')
-        f.write('Sold :'+str(self.numberOfSells)+' shares\n')
-        f.write('Profit: '+str(self.sellTotal-self.buyTotal))
+                self.volumeOfSells += int(trade['Volume'])
+            if trade['Seller Broker ID'] == 'Algorithmic' or trade['Buyer Broker ID'] == 'Algorithmic':
+                graph.write(trade['Time']+"\t"+str(total)+"\n")
+        buyAverage = 0
+        sellAverage = 0
+        if self.volumeOfBuys > 0:
+            buyAverage = self.buyTotal/self.volumeOfBuys
+        if self.volumeOfSells > 0:
+            sellAverage = self.sellTotal/self.volumeOfSells
+        
+        graph.close()
+        f = open("evaluator/Report.txt","w+")
+        f.write('Bought :'+str(self.volumeOfBuys)+' shares\n')
+        f.write('Sold :'+str(self.volumeOfSells)+' shares\n')
+        f.write('Profit: $'+str(self.sellTotal-self.buyTotal)+'\n')
+        f.write('Average buy price: $'+str(buyAverage)+'\n')
+        f.write('Average sell price: $'+str(sellAverage))
         f.close()
+
+        graph = open("evaluator/impact.tsv","w+")
+        graph.write("date\tourPrice\tactualPrice\n")
+        for trade in self.marketTrades:
+            if trade['Time'] >= '10:05:00':
+                lastOurPrice = trade['Price'];
+                lastActualPrice = trade['Price'];
+                break
+
+        for trade in self.marketTrades:
+            if trade['Time'] >= '10:05:00':
+                if trade['Record Type'] == 'MARKET':
+                    trade['Time'] = trade['Time'] + '000'
+                    lastActualPrice = trade['Price']
+                else:
+                    lastOurPrice = trade['Price']
+                graph.write(trade['Time']+"\t"+ lastOurPrice+"\t"+lastActualPrice+"\n")
+
+        graph.close()
+       

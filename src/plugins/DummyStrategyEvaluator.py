@@ -5,4 +5,10 @@ import plugins
 
 class DummyStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in trades and does nothing"""
-    pass
+    def __call__(self, trades, marketTrades):
+        graph = open("evaluator/data.tsv","w+")
+        graph.close()
+        graph = open("evaluator/impact.tsv","w+")
+        graph.close()
+        pass
+

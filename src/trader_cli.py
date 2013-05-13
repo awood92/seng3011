@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """Trader command line interface"""
 
@@ -6,11 +6,17 @@ import sys
 import optparse
 import csv
 import signal
+import os
 
 import yapsy.PluginManager
 
 import trader
 import plugins
+
+
+def my_path(path):
+    """Path to use, given the relative path"""
+    return os.path.join(os.path.dirname(__file__), path)
 
 
 def main():
@@ -27,7 +33,7 @@ def main():
                       help='strategy evaluator')
     (options, args) = parser.parse_args()
     plugin_manager = yapsy.PluginManager.PluginManager()
-    plugin_manager.setPluginPlaces(['plugins'])
+    plugin_manager.setPluginPlaces([my_path('plugins')])
     plugin_manager.setCategoriesFilter({
         'SignalGenerator': plugins.ISignalGeneratorPlugin,
         'Engine': plugins.IEnginePlugin,

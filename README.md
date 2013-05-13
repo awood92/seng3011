@@ -1,3 +1,5 @@
+View README.pdf for instructions
+
 SENG3011
 ========
 
