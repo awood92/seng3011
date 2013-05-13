@@ -23,13 +23,18 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.ordersviewed = []
         # All the trades which have informed this signal generator
         self.tradesviewed = []
-        self.averagePrice = 0
+        self.runningaverage = 0
         
         self.BHPsharesInStock = 0 # convert this into a dictionary for multiple instruments
         self.myorders = []
         self.outstandingSellVolume = 0
         self.outstandingBuyVolume = 0
         self.currentTime = '00:00:00.000'
+        
+        self.historicalOutlook = config.getint('Parameters','historicalOutlook')
+        if self.historicalOutlook < 2:
+            self.historicalOutlook = 2
+
 
     def __call__(self, trading_record=None, endofday=False):
         orders = []
@@ -50,13 +55,14 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                 self.outstandingSellVolume -= int(trading_record['Volume'])
             
             self.tradesviewed.insert(0,trading_record)
-            self.updateRunningAveragePrice(trading_record)
+            if len(self.tradesviewed) > self.historicalOutlook:
+                self.tradesviewed.pop()
+            if len(self.tradesviewed) > 1:
+                self.runningaverage = self.calculateAverageReturn()
             
             if len(self.tradesviewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
-                distance = self.distanceFromMean(float(trading_record['Price']))
-                
                 # Buy trading signal
-                if distance >= self.buyDistanceFromMeanThreshold:
+                if self.runningaverage >= self.buyDistanceFromMeanThreshold:
                     if self.shouldBuyMoreStocks(trading_record['Instrument']) == True:
                         buy = trading_record.copy()
                         buy['Record Type'] = 'ENTER'
@@ -71,7 +77,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         self.outstandingBuyVolume += int(buy['Volume'])
                         self.myorders.append(buy)                        
                 # Sell trading signal
-                elif distance <= -self.sellDistanceFromMeanThreshold:
+                elif self.runningaverage <= -self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
                         sell = trading_record.copy()
                         sell['Record Type'] = 'ENTER'
@@ -92,13 +98,19 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         sell['Seller Broker ID'] = 'Algorithmic'
                         orders.append(sell)
                         self.myorders.append(sell)
-        return orders
+        return orders       
     
-    def distanceFromMean(self,trade_price):
-        return (trade_price-self.averagePrice)/self.averagePrice
-    
-    def updateRunningAveragePrice(self,trading_record):
-        self.averagePrice = (self.averagePrice*(len(self.tradesviewed)-1) + float(trading_record['Price']))/float(len(self.tradesviewed))        
+    def calculateAverageReturn(self):
+        returns = []
+        prevTradePrice = -1
+        for currTrade in self.tradesviewed:
+            if prevTradePrice != -1:
+                returns.append(float((prevTradePrice-float(currTrade['Price']))/float(currTrade['Price'])))
+            prevTradePrice = float(currTrade['Price'])
+        averageReturn = 0
+        for ret in returns:
+            averageReturn += ret
+        return float(averageReturn)/float((len(self.tradesviewed)-1))
     
     def createDumpShareSell(self):
         sell = {

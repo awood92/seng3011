@@ -22,6 +22,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         graph = open("evaluator/data.tsv","w+")
         graph.write("date\tclose\n")
         total = 0
+        graph.write("10:00:00.000000"+"\t"+"0"+"\n")
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
