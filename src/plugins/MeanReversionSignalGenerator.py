@@ -13,7 +13,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.maxBuyPacketSurplus = config.getint('Parameters','maxBuyPacketSurplus')
         self.buyDistanceFromMeanThreshold = config.getfloat('Parameters','buyDistanceFromMeanThreshold')
         self.sellDistanceFromMeanThreshold = config.getfloat('Parameters','sellDistanceFromMeanThreshold')
-        self.minimumAverageSamplesBeforeAction = config.getfloat('Parameters','minimumAverageSamplesBeforeAction')
         self.minimumTimeBeforeAction = config.get('Parameters','minimumTimeBeforeAction')
         
         self.BHPsharesInStock = 0
@@ -49,14 +48,13 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             if trading_record['Seller Broker ID'] == 'Algorithmic':
                 self.outstandingSellVolume -= int(trading_record['Volume'])
             
-            self.tradesviewed.insert(0,trading_record)
+            self.tradesviewed.append(trading_record)
             if len(self.tradesviewed) > self.historicalOutlook:
-                self.tradesviewed.pop()
+                self.tradesviewed.pop(0)
             if len(self.tradesviewed) > 1:
                 self.runningaverage = self.calculateAverageReturn()
-                print str(self.runningaverage) + "   " + trading_record['Time'] + "   " + trading_record['Price']
             
-            if len(self.tradesviewed) >= self.minimumAverageSamplesBeforeAction and self.currentTime >= self.minimumTimeBeforeAction:
+            if len(self.tradesviewed) > 1 and self.currentTime >= self.minimumTimeBeforeAction:
                 if self.runningaverage >= self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
                         sell = trading_record.copy()
@@ -99,13 +97,15 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         prevTradePrice = -1
         for currTrade in self.tradesviewed:
             if prevTradePrice != -1:
-                returns.append(float((prevTradePrice-float(currTrade['Price']))/float(currTrade['Price'])))
+                currentreturn = float(currTrade['Price']) - float(prevTradePrice)
+                currentreturn = float(float(currentreturn) / float(prevTradePrice))
+                returns.append(currentreturn)
             prevTradePrice = float(currTrade['Price'])
         averageReturn = 0
         for ret in returns:
-            averageReturn += ret
+            averageReturn += float(ret)
         return float(averageReturn)/float((len(self.tradesviewed)-1))
-    
+     
     def createDumpShareSell(self):
         sell = {
             'Instrument': 'BHP',

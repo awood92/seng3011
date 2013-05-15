@@ -40,13 +40,13 @@ def run_trial(market_data, signal_generator,
                 # Inform the signal generator about the new trades made
                 for newtrade in newtrades:
                     for order in signal_generator(newtrade):
-                        algorithmicorders.append(order)
+                        algorithmicorders.append(order.copy())
                         heapq.heappush(orders,
                                        (order['Date'], order['Time'], count, order))
                         next(count)        
                 # Inform the signal generator about the new orders placed
                 for order in signal_generator(trading_record):
-                    algorithmicorders.append(order)
+                    algorithmicorders.append(order.copy())
                     heapq.heappush(orders,
                                    (order['Date'], order['Time'], count, order))
                     next(count)
@@ -58,7 +58,7 @@ def run_trial(market_data, signal_generator,
         currentorder = heapq.heappop(orders)[3]
         newtrades.extend(engine(currentorder))
         for order in signal_generator(currentorder):
-            algorithmicorders.append(order)
+            algorithmicorders.append(order.copy())
             newtrades.extend(engine(order))              
         trades.extend(newtrades)
         marketTrades.extend(newtrades)
