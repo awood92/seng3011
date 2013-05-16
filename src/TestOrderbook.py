@@ -53,7 +53,7 @@ def testInsortSellIsSorted():
     assert all(float(orderBook.sells[i]['Price']) <= float(orderBook.sells[i+1]['Price']) for i in xrange(len(orderBook.sells)-1))
     print "Passed testInsortSellIsSorted"
 
-def testSimpleMatchSameQuantity():
+def testSimpleMatchSameVolume():
     buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
     sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"140"}
     orderBook = InitialEngine.OrderBook()
@@ -63,7 +63,8 @@ def testSimpleMatchSameQuantity():
     assert (len (orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))) == 1)
     print "Passed testSimpleMatchSameQuantity"
 
-def testSimpleMatchDifferentQuantity():
+
+def testSimpleMatchDifferentVolume():
     buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
     sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"2000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"140"}
     orderBook = InitialEngine.OrderBook()
@@ -79,9 +80,10 @@ def testSimpleMatchDifferentQuantity():
     assert (int(orderBook.sells[0]['Volume']) == 1000)
     print "Passed testSimpleMatchDifferentQuantity"
 
+#the 2 records inserted shouldn't match
 def testIncorrectMatching():
     buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
-    sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:00:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"2000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"140"}    
+    sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:00:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"2000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"140"}
     orderBook = InitialEngine.OrderBook()
     #add first buy and check it matched 0 orders
     assert (len (orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))) == 0)
@@ -93,8 +95,71 @@ def testIncorrectMatching():
     assert (len (orderBook.sells) == 1)
     assert (len (orderBook.buys) == 1)
     print "Passed testIncorrectMatching"
+
+#add 3 buys and 2 sells. the 2nd buy should match the 1st sell and the rest should be left in the buys and sells lists
+def testComplicatedMatching():
+    orderBook = InitialEngine.OrderBook()
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    buy2 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:01:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"150",'Seller Broker ID':""}
+    buy3 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:02:00.000",'Record Type':"ENTER",'Price':"35.090",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"160",'Seller Broker ID':""}
+    sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:01:00.000",'Record Type':"ENTER",'Price':"36.100",'Volume':"1000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"170"}
+    sell2 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:02:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"2000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"180"}
+    assert (len (orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))) == 0)
+    assert (len (orderBook.addToBuy(buy2,datetime.strptime(buy2['Time'], "%H:%M:%S.%f"))) == 0)
+    assert (len (orderBook.addToBuy(buy3,datetime.strptime(buy3['Time'], "%H:%M:%S.%f"))) == 0)
+    assert (len (orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))) == 0)
+    matches = orderBook.addToSell(sell2,datetime.strptime(sell2['Time'], "%H:%M:%S.%f"))
+    assert (len (matches) == 1)
+    assert (float(matches[0]['Price']) == 35.100)
+    assert (buy1 in orderBook.buys)
+    assert (not (buy2 in orderBook.buys))
+    assert (buy3 in orderBook.buys)
+    assert (sell1 in orderBook.sells)
+    print "Passed testComplicatedMatching"
+
+#test amend removes old record and adds new
+def testAmend():
+    orderBook = InitialEngine.OrderBook()
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    buy2 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:01:00.000",'Record Type':"ENTER",'Price':"35.100",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525024",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    buy3 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:02:00.000",'Record Type':"ENTER",'Price':"35.090",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525025",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    amend1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
+    orderBook.amend(amend1,datetime.strptime(amend1['Time'], "%H:%M:%S.%f"))
+    assert (amend1 in orderBook.buys)
+    assert (not (buy1 in orderBook.buys))
+    print "Passed testAmmend"
+
+#insert buy, insert sell that doesnt match, amend price of buy to match sell
+def testAmendMatching():
+    orderBook = InitialEngine.OrderBook()
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:01:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"170"}
+    amend1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
+    #no matches yet
+    assert (len (orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))) == 0) #no match
+    assert (len (orderBook.amend(amend1,datetime.strptime(amend1['Time'], "%H:%M:%S.%f"))) == 1) #now there is a match
+    print "Passed testAmmendMatching"
+
+def testSimpleDelete():
+    orderBook = InitialEngine.OrderBook()
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:01:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189407525023",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"170"}
+    orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
+    orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))
+    assert (orderBook.delete(buy1) == True)
+    assert (orderBook.delete(buy1) == False) #no longer in list
+    assert (sell1 in orderBook.sells)
+    assert (not (buy1 in orderBook.buys))
+    print "Passed testSimpleDelete"
+
 testInsortBuyIsSorted()
 testInsortSellIsSorted()
-testSimpleMatchSameQuantity()
-testSimpleMatchDifferentQuantity()
+testSimpleMatchSameVolume()
+testSimpleMatchDifferentVolume()
 testIncorrectMatching()
+testComplicatedMatching()
+testAmend()
+testAmendMatching()
+testSimpleDelete()
