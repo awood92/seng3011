@@ -1,5 +1,6 @@
 from plugins import InitialEngine
 from datetime import datetime
+import copy
 
 def testInsortBuyIsSorted():
     buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"00:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
@@ -137,10 +138,21 @@ def testAmendMatching():
     sell1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"12:01:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"70200",'Qualifiers':"",'Trans ID':"0",'Bid ID':"",'Ask ID':"6245081189408853420",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"170"}
     amend1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
     orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
-    #no matches yet
     assert (len (orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))) == 0) #no match
     assert (len (orderBook.amend(amend1,datetime.strptime(amend1['Time'], "%H:%M:%S.%f"))) == 1) #now there is a match
-    print "Passed testAmmendMatching"
+    print "Passed testAmendMatching"
+
+def testAmendingThingsNotInList():
+    orderBook = InitialEngine.OrderBook()
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"35.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525023",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}    
+    amend1 = {'Instrument':"BHP",'Date':"2013-03-15",'Time':"11:00:00.000",'Record Type':"ENTER",'Price':"40.080",'Volume':"1000",'Undisclosed Volume':"0",'Value':"35080",'Qualifiers':"",'Trans ID':"0",'Bid ID':"6245081189407525030",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"140",'Seller Broker ID':""}
+    orderBook.addToBuy(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
+    orderBook.amend(amend1,datetime.strptime(amend1['Time'], "%H:%M:%S.%f"))
+    assert (buy1 in orderBook.buys)
+    assert (not (amend1 in orderBook.buys))
+    assert (len (orderBook.buys) == 1)
+    assert (len (orderBook.sells) == 0)
+    print "Passed testAmendingThingsNotInList"
 
 def testSimpleDelete():
     orderBook = InitialEngine.OrderBook()
@@ -163,3 +175,4 @@ testComplicatedMatching()
 testAmend()
 testAmendMatching()
 testSimpleDelete()
+testAmendingThingsNotInList()
