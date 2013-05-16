@@ -34,7 +34,27 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.historicalOutlook = config.getint('Parameters','historicalOutlook')
         if self.historicalOutlook < 2:
             self.historicalOutlook = 2
-
+    
+    def manualSetup(self,parameters):
+        """Reads momentum strategy parameters from a parameter list"""
+        self.started = False
+        self.minimumTimeBeforeAction = parameters["minimumTimeBeforeAction"]
+        self.buyDistanceFromMeanThreshold = parameters["buyDistanceFromMeanThreshold"]
+        self.sellDistanceFromMeanThreshold = parameters["sellDistanceFromMeanThreshold"]        
+        self.buyPacketSize = parameters["buyPacketSize"]
+        self.sellPacketSize = parameters["sellPacketSize"]
+        self.maxBuyPacketSurplus = parameters["maxBuyPacketSurplus"]
+        
+        self.ordersviewed = []
+        self.tradesviewed = []
+        self.runningaverage = 0
+        
+        self.BHPsharesInStock = 0 # convert this into a dictionary for multiple instruments
+        self.myorders = []
+        self.outstandingSellVolume = 0
+        self.outstandingBuyVolume = 0
+        self.currentTime = '00:00:00.000'
+        self.historicalOutlook = parameters["historicalOutlook"]
 
     def __call__(self, trading_record=None, endofday=False):
         orders = []
