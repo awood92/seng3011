@@ -45,7 +45,7 @@ def _testMeanReversionGeneratesNoOrdersWhenBelowThreshold():
     assert len(trades) == 0
 
 def _testMeanReversionGeneratesOrdersBasicOne():
-    print "> Testing two increasing trades generate a new order from the signal generator"
+    print "> Testing two decreasing trades generate a new order from the signal generator"
     meanReversionSignalGenerator = MeanReversionSignalGenerator.MeanReversionSignalGenerator()
     parameterList = {"minimumTimeBeforeAction" : "10:05:00.000",
                     "buyDistanceFromMeanThreshold" : 0.001,
@@ -85,7 +85,7 @@ def _testMeanReversionGeneratesOrdersBasicTwo():
     assert len(trades) == 1,"length of trades is " + str(len(trades)) + " not 1"
     
 def _testMeanReversionGeneratesOrdersBasicThree():
-    print "> Testing two increasing trades generate a no orders when below threshold"
+    print "> Testing two decreasing trades generate a no orders when below threshold"
     meanReversionSignalGenerator = MeanReversionSignalGenerator.MeanReversionSignalGenerator()
     parameterList = {"minimumTimeBeforeAction" : "10:05:00.000",
                     "buyDistanceFromMeanThreshold" : 0.003,
