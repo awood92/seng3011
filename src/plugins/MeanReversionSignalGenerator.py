@@ -1,6 +1,7 @@
 """Mean reversion signal generator plugin"""
 
 import plugins
+from plugins.SignalGeneratorUtils import calculateAverageReturn
 
 class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
     """Makes buy and sell signals based off the mean reversion strategy"""
@@ -52,7 +53,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             if len(self.tradesviewed) > self.historicalOutlook:
                 self.tradesviewed.pop(0)
             if len(self.tradesviewed) > 1:
-                self.runningaverage = self.calculateAverageReturn()
+                self.runningaverage = calculateAverageReturn(self.tradesviewed)
             
             if len(self.tradesviewed) > 1 and self.currentTime >= self.minimumTimeBeforeAction:
                 if self.runningaverage >= self.sellDistanceFromMeanThreshold:
@@ -91,20 +92,6 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         orders.append(buy)
                         self.myorders.append(buy)  
         return orders
-    
-    def calculateAverageReturn(self):
-        returns = []
-        prevTradePrice = -1
-        for currTrade in self.tradesviewed:
-            if prevTradePrice != -1:
-                currentreturn = float(currTrade['Price']) - float(prevTradePrice)
-                currentreturn = float(float(currentreturn) / float(prevTradePrice))
-                returns.append(currentreturn)
-            prevTradePrice = float(currTrade['Price'])
-        averageReturn = 0
-        for ret in returns:
-            averageReturn += float(ret)
-        return float(averageReturn)/float((len(self.tradesviewed)-1))
      
     def createDumpShareSell(self):
         sell = {
