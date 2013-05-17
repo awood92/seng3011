@@ -165,7 +165,19 @@ def testSimpleDelete():
     assert (sell1 in orderBook.sells)
     assert (not (buy1 in orderBook.buys))
     print "Passed testSimpleDelete"
-
+def testPartialBuy():
+    orderBook = InitialEngine.OrderBook()
+    sell1 = {'Instrument':"BHP",'Date':"2013-03-01",'Time':"10:00:00.010",'Record Type':"ENTER",'Price':"10",'Volume':"50",'Undisclosed Volume':"0",'Value':"500",'Qualifiers':"",'Trans ID':"",'Bid ID':"",'Ask ID':"111",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"1"}
+    sell2 = {'Instrument':"BHP",'Date':"2013-03-01",'Time':"10:01:00.000",'Record Type':"ENTER",'Price':"20",'Volume':"50",'Undisclosed Volume':"0",'Value':"1000",'Qualifiers':"",'Trans ID':"",'Bid ID':"",'Ask ID':"112",'Bid/Ask':"A",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"",'Seller Broker ID':"1"}
+    buy1 = {'Instrument':"BHP",'Date':"2013-03-01",'Time':"10:02:00.000",'Record Type':"ENTER",'Price':"9",'Volume':"100",'Undisclosed Volume':"0",'Value':"900",'Qualifiers':"",'Trans ID':"",'Bid ID':"113",'Ask ID':"",'Bid/Ask':"B",'Entry Time':"",'Old Price':"",'Old Volume':"",'Buyer Broker ID':"2",'Seller Broker ID':""}
+    amend1 = {'Instrument':"BHP",'Date':"2013-03-01",'Time':"10:03:30.000",'Record Type':"AMEND",'Price':"8",'Volume':"50",'Undisclosed Volume':"0",'Value':"400",'Qualifiers':"",'Trans ID':"",'Bid ID':"",'Ask ID':"111",'Bid/Ask':"A",'Entry Time':"10:00:00.00",'Old Price':"10",'Old Volume':"50",'Buyer Broker ID':"",'Seller Broker ID':"1"}
+    amend2 = {'Instrument':"BHP",'Date':"2013-03-01",'Time':"10:03:31.000",'Record Type':"AMEND",'Price':"8",'Volume':"50",'Undisclosed Volume':"0",'Value':"400",'Qualifiers':"",'Trans ID':"",'Bid ID':"",'Ask ID':"112",'Bid/Ask':"A",'Entry Time':"10:01:00.00",'Old Price':"20",'Old Volume':"50",'Buyer Broker ID':"",'Seller Broker ID':"1"}
+    orderBook.addToSell(sell1,datetime.strptime(sell1['Time'], "%H:%M:%S.%f"))
+    orderBook.addToSell(sell2,datetime.strptime(sell2['Time'], "%H:%M:%S.%f"))
+    orderBook.addToSell(buy1,datetime.strptime(buy1['Time'], "%H:%M:%S.%f"))
+    orderBook.amend(amend1,datetime.strptime(amend1['Time'], "%H:%M:%S.%f"))
+    assert len (orderBook.amend(amend2,datetime.strptime(amend2['Time'], "%H:%M:%S.%f"))) == 1
+    print "Passed testPartialBuy"
 testInsortBuyIsSorted()
 testInsortSellIsSorted()
 testSimpleMatchSameVolume()
