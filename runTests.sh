@@ -7,17 +7,13 @@ if [ $? -eq 2 ]; then exit 2; fi
 py_compilefiles *.py plugins/*.py && pydoc -w trader trader_cli test_trader plugins test_plugins && ./test_trader.py && ./test_plugins.py
 echo "\n\n---------------------------------TESTINFO----------------------------------"
 # Putting test info in 1 file, later i'll create testinfo files for each of the tests, and it'll print it before each test - Chris
-cat "../sample/testinfo"
 echo "\n---------------------------------------------------------------------------"
-for f in ../sample/test*.csv
+for f in ../sample/test[0-9].csv
   do
     echo "Running $f\n"
-    orderlist=`cat $f | ./trader_cli.py -e "Initial Engine" -s "Initial Strategy Evaluator" -g "Initial Signal Generator"`
+    outputfile=`echo $f | sed "s/\.csv/_output.csv/g"`
+    cat $f | ./trader_cli.py -e "Initial Engine" -s "Dummy Strategy Evaluator" -g "Dummy Signal Generator" | diff $outputfile -
     # comment both lines below to remove trade count - Chris
-    echo "TRADES: "
-    echo `echo "$orderlist" | grep "TRADE" -c`
-    # comment line below to remove tradelist  - Chris
-    echo "\n$orderlist"
     echo "---------------------------------------------------------------------------"
 done
 failure=$?

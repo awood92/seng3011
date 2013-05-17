@@ -1,0 +1,2 @@
+Instrument,Date,Time,Record Type,Price,Volume,Undisclosed Volume,Value,Qualifiers,Trans ID,Bid ID,Ask ID,Bid/Ask,Entry Time,Old Price,Old Volume,Buyer Broker ID,Seller Broker ID
+BHP,2013-03-01,10:05:00.000000,TRADE,10,50,0,500.0,,,222,111,,,,,2,1
