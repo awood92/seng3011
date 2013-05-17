@@ -32,7 +32,7 @@ class OrderBook:
             recordType = recordToAmend['Bid/Ask']
             if recordType == 'B':
                 self._insortBuy(recordToAmend)
-            elif recordType == 'S':
+            elif recordType == 'A':
                 self._insortSell(recordToAmend)
 
             if not self._startOfDay(currentTime):
@@ -62,7 +62,7 @@ class OrderBook:
                     removed = True
                     break
             if removed:
-                self.sells.remove(record)
+                self.sells.remove(recordToRemove)
         return removed
 
     def _matchOrders(self, currentTime):
