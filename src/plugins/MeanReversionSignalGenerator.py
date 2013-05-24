@@ -103,7 +103,7 @@ class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
                         buy['Record Type'] = 'ENTER'
                         buy['Bid/Ask'] = 'B'
                         buy['Price'] = 'MP' #trading_record['Price'] # we can increase this if we want
-                        buy['Volume'] = self.buyPacketSize # Determine this based off market volume maybe?
+                        buy['Volume'] = self.volumeToBuy(trading_record['Instrument'])          
                         self.outstandingBuyVolume += int(buy['Volume'])
                         buy['Bid ID'] = 'Algorithmic' + str(len(self.myorders))
                         buy['Ask ID'] = ''
@@ -140,3 +140,9 @@ class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
         if self.BHPsharesInStock + self.outstandingBuyVolume + self.outstandingSellVolume >= self.maxBuyPacketSurplus*self.buyPacketSize:
             return False
         return True
+        
+    def volumeToBuy(self,instrument):
+        if self.maxBuyPacketSurplus*self.buyPacketSize - self.BHPsharesInStock + self.outstandingBuyVolume + self.outstandingSellVolume < self.buyPacketSize:
+            return self.maxBuyPacketSurplus*self.buyPacketSize - self.BHPsharesInStock + self.outstandingBuyVolume + self.outstandingSellVolume
+        else:
+            return self.buyPacketSize
