@@ -6,7 +6,7 @@
 body {
   font-family: "Helvetica Neue";
   margin: 20px auto;
-  width: 1500px;
+  width: 1600px;
   min-height: 2000px;
 }
 
@@ -96,12 +96,16 @@ h2 {
   width: 420px;
 }
 
+#algo-chart {
+  width: 100px;
+}
+
 #date-chart {
-  width: 920px;
+  width: 1100px;
 }
 
 #flight-list {
-  min-height: 1024px;
+  min-height: 1200px;
 }
 
 #flight-list .date,
@@ -112,7 +116,7 @@ h2 {
 #flight-list .flight {
   line-height: 1.5em;
   background: #eee;
-  width: 710px;
+  width: 1058px;
   margin-bottom: 1px;
 }
 
@@ -125,7 +129,11 @@ h2 {
   width: 100px;
 }
 
-#flight-list div.distance,
+#flight-list div.distance {
+  width: 100px;
+  padding-right: 10px;
+  text-align: right;
+}
 #flight-list div.delay {
   width: 160px;
   padding-right: 10px;
@@ -133,7 +141,19 @@ h2 {
 }
 
 #flight-list div.origin {
-  width: 160px;
+  width: 200px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+#flight-list div.bid {
+  width: 170px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+#flight-list div.sid {
+  width: 170px;
   padding-right: 10px;
   text-align: right;
 }
@@ -165,6 +185,9 @@ aside {
   </div>
   <div id="distance-chart" class="chart">
     <div class="title">Volume (shares)</div>
+  </div>
+  <div id="algo-chart" class="chart">
+    <div class="title">Algorihmic trades</div>
   </div>
   <div id="date-chart" class="chart">
     <div class="title">Time</div>
@@ -205,7 +228,7 @@ d3.csv("filter.tsv", function(error, flights) {
     if (i == 0) {
       // minDate = parseDate(d.date);
 
-            minDate = new Date(d.date.substring(0, 4), // year
+      minDate = new Date(d.date.substring(0, 4), // year
         d.date.substring(5, 7), // mon
         d.date.substring(8, 10), // day
         9,50,0,0);
@@ -227,14 +250,20 @@ d3.csv("filter.tsv", function(error, flights) {
       maxPrice = d.delay;
     }
 
-    // maxDate = parseDate(d.date);
-
     d.index = i;
     d.date = parseDate(d.date);
     d.delay = +d.delay;
     d.distance = +d.distance;
-    d.origin = +d.origin
+    d.origin = +d.origin;
+    d.algo = 0;
+    if(d.bbid == "Algorithmic"){
+      d.algo = d.algo + 1;
+    }
 
+    if (d.sbid == "Algorithmic"){
+      d.algo = d.algo + 2;
+    }
+     
   });
 
   if(minPrice > 1){
@@ -260,7 +289,9 @@ d3.csv("filter.tsv", function(error, flights) {
       delays = delay.group(function(d) { return Math.floor(d * 10) / 10; }),
       //delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
       distance = flight.dimension(function(d) { return Math.min(2499, d.distance); }),
-      distances = distance.group(function(d) { return Math.floor(d / 50) * 50; });
+      distances = distance.group(function(d) { return Math.floor(d / 50) * 50; }),
+      algo = flight.dimension(function(d) { return d.algo; }),
+      algos = algo.group(function(d) { return Math.floor(d * 10) / 10; });
 
   var charts = [
 
@@ -286,22 +317,20 @@ d3.csv("filter.tsv", function(error, flights) {
         .rangeRound([0, 10 * 40])),
 
     barChart()
+        .dimension(algo)
+        .group(algos)
+      .x(d3.scale.linear()
+        .domain([-0.8, 3.8])
+        .rangeRound([0, 10 * 10])),
+
+    barChart()
         .dimension(datehour)
         .group(datehours)
         .round(d3.time.minutes.round)
       .x(d3.time.scale()
         .domain([minDate, maxDate])
-        .rangeRound([0, 10 * 90]))
+        .rangeRound([0, 10 * 105]))
         .filter([minDate, maxDate])
-
-    // barChart()
-    //     .dimension(date)
-    //     .group(dates)
-    //     .round(d3.time.day.round)
-    //   .x(d3.time.scale()
-    //     .domain([minDate, maxDate])
-    //     .rangeRound([0, 10 * 90]))
-    //     .filter([minDate, maxDate])
 
   ];
 
@@ -395,13 +424,31 @@ d3.csv("filter.tsv", function(error, flights) {
 
       flightEnter.append("div")
           .attr("class", "origin")
-          .text(function(d) { return "$" + parseFloat(Math.floor(d.origin*100)/100).toFixed(2)  + " total"; });
+          .text(function(d) { return "$" + formatThousands(parseFloat(Math.floor(d.origin*100)/100))  + " total"; });
+
+      flightEnter.append("div")
+          .attr("class", "bid")
+          .text(function(d) { return d.bbid + " BID"; });
+
+      flightEnter.append("div")
+          .attr("class", "sid")
+          .text(function(d) { return d.sbid + " SID"; });
 
       flight.exit().remove();
 
       flight.order();
     });
   }
+
+  function formatThousands(n) {
+    sep = "."; // Default to period as decimal separator
+    decimals = 2; // Default to 2 decimals
+
+    return n.toLocaleString().split(sep)[0]
+        + sep
+        + n.toFixed(decimals).split(sep)[1];
+  }
+
 
   function barChart() {
     if (!barChart.id) barChart.id = 0;
@@ -419,7 +466,19 @@ d3.csv("filter.tsv", function(error, flights) {
 
     if(barChart.id == 1) {
       axis = d3.svg.axis().orient("bottom").tickFormat(d3.format("s"));
-    } else {
+    } else if (barChart.id == 4){
+      axis = d3.svg.axis().orient("bottom").ticks(4).tickFormat(function(d, i){
+                                                                  if(d==0){
+                                                                    return "None"
+                                                                  }else if(d==1){
+                                                                    return "B"
+                                                                  }else if(d==2){
+                                                                    return "S"
+                                                                  }else{
+                                                                    return "B+S"
+                                                                  }
+                                                                });
+    }else{
       axis = d3.svg.axis().orient("bottom");
     }
 
@@ -500,6 +559,7 @@ d3.csv("filter.tsv", function(error, flights) {
             d;
         while (++i < n) {
           d = groups[i];
+          // Height of bars
           path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
         }
         return path.join("");

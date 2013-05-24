@@ -85,10 +85,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         # filter.tsv
         graph = open("evaluator/filter.tsv","w+")
 
-
-        #graph.write("Time\tInstrument\tPrice\tVolume\n")
-        #date,delay,distance,origin,destination
-        graph.write("date,delay,distance,origin,destination\n")
+        graph.write("date,delay,distance,origin,destination,bbid,sbid\n")
 
         for trade in self.marketTrades:
             date = str(trade['Date']) + ":"
@@ -100,8 +97,6 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 date = date[:7] + "-" + date[7:]
             datetime = date + time;
 
-            #graph.write(trade['Time']+","+ trade['tInstrument']+","+trade['tPrice']+"," + trade['tVolume'] + "\n")
-            graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + trade['Instrument'] + "\n")
+            graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + str(trade['Instrument']) + "," + str(trade['Buyer Broker ID']) + "," +str(trade['Seller Broker ID']) + "\n")
 
         graph.close()
-       
