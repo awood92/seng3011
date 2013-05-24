@@ -53,15 +53,16 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         
         f.write('\nORDERS:\n')
         for algoorder in self.algorithmicorders:
-            f.write(algoorder["Date"] + "\t" + algoorder['Time'] + "\t\t" + algoorder['Bid/Ask'] + "\t" + str(algoorder['Volume']) + "\t" + algoorder['Price'] + "\n")
+            f.write(str(algoorder["Date"]) + "\t" + str(algoorder['Time']) + "\t\t" + str(algoorder['Bid/Ask']) + "\t" + str(algoorder['Volume']) + "\t" + str(algoorder['Price']) + "\n")
         
         f.write('\nTRADES:\n')
         for trade in self.trades:
             if trade['Buyer Broker ID'] == 'Algorithmic' or trade['Seller Broker ID'] == 'Algorithmic':
-                f.write(trade["Date"] + "\t" + trade['Time'] + "\t" + str(trade['Volume']) + "\t" + trade['Price'] + "\n")
+                f.write(str(trade["Date"]) + "\t" + str(trade['Time']) + "\t" + str(trade['Volume']) + "\t" + str(trade['Price']) + "\n")
         
         f.close()
 
+        # impact.tsv
         graph = open("evaluator/impact.tsv","w+")
         graph.write("date\tourPrice\tactualPrice\n")
         for trade in self.marketTrades:
@@ -78,6 +79,29 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 else:
                     lastOurPrice = trade['Price']
                 graph.write(trade['Time']+"\t"+ lastOurPrice+"\t"+lastActualPrice+"\n")
+
+        graph.close()
+
+        # filter.tsv
+        graph = open("evaluator/filter.tsv","w+")
+
+
+        #graph.write("Time\tInstrument\tPrice\tVolume\n")
+        #date,delay,distance,origin,destination
+        graph.write("date,delay,distance,origin,destination\n")
+
+        for trade in self.marketTrades:
+            date = str(trade['Date']) + ":"
+            time = str(trade['Time'])
+            if (len(time) == 15):
+                time = time[:-3]
+            if (len(date) == 9):
+                date = date[:4] + "-" + date[4:]
+                date = date[:7] + "-" + date[7:]
+            datetime = date + time;
+
+            #graph.write(trade['Time']+","+ trade['tInstrument']+","+trade['tPrice']+"," + trade['tVolume'] + "\n")
+            graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + trade['Instrument'] + "\n")
 
         graph.close()
        
