@@ -25,7 +25,10 @@ def run_trial(market_data, signal_generator,
     for trading_record in market_data:
         tradingrecordsprocessed += 1
         if progressdialog != None and tradingrecordsprocessed%1000 == 0:
-            progressdialog.Update(tradingrecordsprocessed,"Processing records: "+str(tradingrecordsprocessed)+" complete.")
+            if not progressdialog.Update(tradingrecordsprocessed,"Processing records: "+str(tradingrecordsprocessed)+" complete.")[0]:
+                progressdialog.Close()
+                break
+            
         recordType = trading_record['Record Type']
         # We need to filter existing trades out, because signal generator now accepts trades
         if ((recordType != 'TRADE') and (recordType != 'CANCEL_TRADE') and (recordType != 'OFFTR')):
