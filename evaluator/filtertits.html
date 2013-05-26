@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<h3><a href='../evaluator'>Back</a></h3>
 <meta charset="utf-8">
 <title>Crossfilter</title>
 <style>
@@ -173,7 +174,7 @@ h2 {
 
 aside {
   position: absolute;
-  left: 740px;
+  left: 1015px;
   font-size: smaller;
   width: 220px;
 }
@@ -487,6 +488,9 @@ d3.csv("filter.tsv", function(error, flights) {
                                                                     return "B+S"
                                                                   }
                                                                 });
+    } else if (barChart.id == 5){
+      // Rounds down to nearest 
+      axis = d3.svg.axis().orient("bottom").ticks(20);
     }else{
       axis = d3.svg.axis().orient("bottom");
     }
