@@ -49,7 +49,7 @@ var data = [
 $data
 ];
 
-var parseTime = d3.time.format("%I:%M:%S.%L").parse;
+var parseTime = d3.time.format("%I:%M:%S.%L%L").parse;
 
 for (var i=0; i<data.length; ++i) data[i].t = parseTime(data[i].t);
 
@@ -119,7 +119,7 @@ $$("body").tabs();
                     selling = True
                     sell += float(trade['Price']) * int(trade['Volume'])
         f = open(self._filename, 'w')
-        record = '  {t: "{}", payoff: {}, roi: {}},\n'
+        record = '  {{t: "{0}", payoff: {1}, roi: {2}}},\n'
         records = (record.format(t, payoff, roi) for t, payoff, roi in data)
         report = string.Template(template)
         f.write(report.substitute(data=''.join(records)))
