@@ -1,0 +1,11 @@
+[Core]
+Name = Html Strategy Evaluator
+Module = HtmlStrategyEvaluator.py
+
+[Documentation]
+Description = Writes a strategy report to an html file
+Author = Nicholas Grasevski
+Version = 0.1
+
+[Parameters]
+filename = report.html
