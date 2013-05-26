@@ -7,10 +7,11 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
     """Takes in althorithmic orders and outputs an evaluation"""
     
     #setup(self, config)
-    def __call__(self, trades,marketTrades,algorithmicorders):
+    def __call__(self, trades,marketTrades,algorithmicorders,orders):
         self.trades = trades
         self.marketTrades = marketTrades
         self.algorithmicorders = algorithmicorders
+        self.orders = orders
         self.buyTotal = 0
         self.volumeOfBuys = 0
         self.sellTotal = 0
@@ -23,6 +24,8 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         graph.write("date\tclose\n")
         total = 0
         graph.write("10:00:00.000000"+"\t"+"0"+"\n")
+        first = 1
+
         for trade in self.trades:
             amount = float(trade['Price']) * int(trade['Volume'])
             if trade['Buyer Broker ID'] == 'Algorithmic':
@@ -35,7 +38,12 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
                 self.sellTotal += amount
                 self.volumeOfSells += int(trade['Volume'])
             if trade['Seller Broker ID'] == 'Algorithmic' or trade['Buyer Broker ID'] == 'Algorithmic':
+                if first != 1:
+                    graph.write(prevTime+"\t"+str(total)+"\n")
+                first = 0
                 graph.write(trade['Time']+"\t"+str(total)+"\n")
+                prevTime = trade['Time']
+
         buyAverage = 0
         sellAverage = 0
         if self.volumeOfBuys > 0:
@@ -87,7 +95,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
 
         graph.write("date,delay,distance,origin,destination,bbid,sbid\n")
 
-        for trade in self.marketTrades:
+        for trade in self.trades:
             date = str(trade['Date']) + ":"
             time = str(trade['Time'])
             if (len(time) == 15):
@@ -100,3 +108,54 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
             graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + str(trade['Instrument']) + "," + str(trade['Buyer Broker ID']) + "," +str(trade['Seller Broker ID']) + "\n")
 
         graph.close()
+
+        # filtermarket.tsv
+        graph = open("evaluator/filtermarket.tsv","w+")
+
+        graph.write("date,delay,distance,origin,destination,bbid,sbid,type\n")
+
+        for trade in self.marketTrades:
+            date = str(trade['Date']) + ":"
+            time = str(trade['Time'])
+            if (len(time) == 15):
+                time = time[:-3]
+            if (len(date) == 9):
+                date = date[:4] + "-" + date[4:]
+                date = date[:7] + "-" + date[7:]
+            datetime = date + time;
+
+            graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + str(trade['Instrument']) + "," + str(trade['Buyer Broker ID']) + "," +str(trade['Seller Broker ID']) + "," + str(trade['Record Type']) + "\n")
+
+        graph.close()
+
+        # filtermarket.tsv
+        graph = open("evaluator/filterorder.tsv","w+")
+
+        graph.write("date,delay,distance,origin,destination,bbid,sbid,type\n")
+
+        for trade in self.orders:
+            date = str(trade['Date']) + ":"
+            time = str(trade['Time'])
+            if (len(time) == 15):
+                time = time[:-3]
+            if (len(date) == 9):
+                date = date[:4] + "-" + date[4:]
+                date = date[:7] + "-" + date[7:]
+            if(time < "10:00:00.000"):
+                time = "10:00:00.000"
+            datetime = date + time;
+
+            if(str(trade['Record Type']) == "ENTER"):
+                if(str(trade['Bid/Ask']) == "A"):
+                    tempType = "S"
+                else:
+                    tempType = str(trade['Bid/Ask'])
+            else:
+                tempType = str(trade['Record Type'])[0]
+            
+
+
+            graph.write(str(datetime) + "," + str(trade['Price']) + "," + str(trade['Volume']) + "," + str(trade['Value']) + "," + str(trade['Instrument']) + "," + str(trade['Buyer Broker ID']) + "," +str(trade['Seller Broker ID']) + "," + tempType + "\n")
+
+        graph.close()
+

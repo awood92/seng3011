@@ -12,6 +12,7 @@ def run_trial(market_data, signal_generator,
     trades = []
     marketTrades = []
     orders = []
+    allorders = []
     algorithmicorders = []
     count = itertools.count()
 
@@ -32,6 +33,8 @@ def run_trial(market_data, signal_generator,
         recordType = trading_record['Record Type']
         # We need to filter existing trades out, because signal generator now accepts trades
         if ((recordType != 'TRADE') and (recordType != 'CANCEL_TRADE') and (recordType != 'OFFTR')):
+            
+            allorders.append(trading_record.copy())
             engine_time = (trading_record['Date'], trading_record['Time'])
             newtrades = []
             while len(orders) > 0 and orders[0][:2] <= engine_time:
@@ -75,7 +78,7 @@ def run_trial(market_data, signal_generator,
     
     trades = sorted(trades, key=lambda trade: trade['Time'])
     marketTrades = sorted(marketTrades, key=lambda trade: trade['Time'])
-    strategy_evaluator(trades,marketTrades,algorithmicorders)
+    strategy_evaluator(trades,marketTrades,algorithmicorders,allorders)
     return trades
 
 if __name__ == '__main__':

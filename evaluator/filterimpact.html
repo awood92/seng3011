@@ -98,7 +98,7 @@ h2 {
   width: 420px;
 }
 
-#algo-chart {
+#trade-chart {
   width: 230px;
 }
 
@@ -183,7 +183,7 @@ aside {
 
 <div id="body">
 
-<h1>The Integrated Trade Summariser</h1>
+<h1>Stock Exchange Impact</h1>
 
 
 <div id="charts">
@@ -196,8 +196,8 @@ aside {
   <div id="distance-chart" class="chart">
     <div class="title">Volume (shares)</div>
   </div>
-  <div id="algo-chart" class="chart">
-    <div class="title">Algorithmic Trades</div>
+  <div id="trade-chart" class="chart">
+    <div class="title">Trade version</div>
   </div>
   <div id="date-chart" class="chart">
     <div class="title">Time</div>
@@ -222,7 +222,7 @@ var formatNumber = d3.format(",d"),
     formatDate = d3.time.format("%B %d, %Y"),
     formatTime = d3.time.format("%I:%M:%S %p");
 
-d3.csv("filter.tsv", function(error, flights) {
+d3.csv("filtermarket.tsv", function(error, flights) {
 
   // Domains:
   var minDate, maxDate, minPrice, maxPrice, minVal, maxVal;
@@ -263,14 +263,11 @@ d3.csv("filter.tsv", function(error, flights) {
     d.delay = +d.delay;
     d.distance = +d.distance;
     d.origin = +d.origin;
-    d.algo = 0;
 
-    if(d.bbid == "Algorithmic"){
-      d.algo = d.algo + 1;
-    }
-
-    if (d.sbid == "Algorithmic"){
-      d.algo = d.algo + 2;
+    if(d.type == "MARKET"){
+      d.type = 1;
+    }else{
+      d.type = 0;
     }
      
   });
@@ -295,12 +292,12 @@ d3.csv("filter.tsv", function(error, flights) {
       hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
       hours = hour.group(Math.floor),
       delay = flight.dimension(function(d) { return d.delay }),
-      delays = delay.group(function(d) { return Math.floor(d * 10) / 10; }),
+      delays = delay.group(function(d) { return Math.floor(d * 100) / 100; }),
       //delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
       distance = flight.dimension(function(d) { return Math.min(2499, d.distance); }),
       distances = distance.group(function(d) { return Math.floor(d / 50) * 50; }),
-      algo = flight.dimension(function(d) { return d.algo; }),
-      algos = algo.group(function(d) { return Math.floor(d * 10) / 10; });
+      type = flight.dimension(function(d) { return d.type; }),
+      types = type.group(function(d) { return Math.floor(d * 10) / 10; });
 
   var charts = [
 
@@ -326,10 +323,10 @@ d3.csv("filter.tsv", function(error, flights) {
         .rangeRound([0, 10 * 40])),
 
     barChart()
-        .dimension(algo)
-        .group(algos)
+        .dimension(type)
+        .group(types)
       .x(d3.scale.linear()
-        .domain([-0.8, 3.8])
+        .domain([-0.8, 1.8])
         .rangeRound([0, 10 * 10])),
 
     barChart()
@@ -476,15 +473,11 @@ d3.csv("filter.tsv", function(error, flights) {
     if(barChart.id == 1) {
       axis = d3.svg.axis().orient("bottom").tickFormat(d3.format("s"));
     } else if (barChart.id == 4){
-      axis = d3.svg.axis().orient("bottom").ticks(4).tickFormat(function(d, i){
+      axis = d3.svg.axis().orient("bottom").ticks(2).tickFormat(function(d, i){
                                                                   if(d==0){
-                                                                    return "None"
+                                                                    return "Engine"
                                                                   }else if(d==1){
-                                                                    return "B"
-                                                                  }else if(d==2){
-                                                                    return "S"
-                                                                  }else{
-                                                                    return "B+S"
+                                                                    return "Sirca"
                                                                   }
                                                                 });
     } else if (barChart.id == 5){
