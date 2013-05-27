@@ -78,7 +78,7 @@ def run_trial(market_data, signal_generator,
     
     trades = sorted(trades, key=lambda trade: trade['Time'])
     marketTrades = sorted(marketTrades, key=lambda trade: trade['Time'])
-    strategy_evaluator(trades,marketTrades,algorithmicorders,allorders)
+    strategy_evaluator(trades,marketTrades,algorithmicorders,allorders,signal_generator.getTradesBeforeOrder())
     return trades
 
 if __name__ == '__main__':
