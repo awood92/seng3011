@@ -1,6 +1,7 @@
 """Mean reversion signal generator plugin"""
 
 import plugins
+import copy
 from plugins.SignalGeneratorUtils import calculateAverageReturn
 
 class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
@@ -69,7 +70,7 @@ class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
             return None
         elif trading_record['Record Type'] == 'TRADE':
             self.previousfivetrades.append(trading_record)
-            if len(self.previousfivetrades) > 5:
+            if len(self.previousfivetrades) > self.historicalOutlook:
                 self.previousfivetrades.pop(0)
             
             self.currentTime = trading_record['Time']
@@ -108,8 +109,7 @@ class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
                         orders.append(sell)
                         self.myorders.append(sell)
                                                 
-                        self.tradesbeforeorder.append(self.previousfivetrades)
-                        self.previousfivetrades = []                        
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
                 elif self.runningaverage <= -self.buyDistanceFromMeanThreshold:
                     if self.shouldBuyMoreStocks(trading_record['Instrument']) == True:
                         buy = trading_record.copy()
@@ -125,8 +125,7 @@ class MeanReversionSignalGenerator(plugins.ISignalGeneratorPlugin):
                         orders.append(buy)
                         self.myorders.append(buy)  
                                                 
-                        self.tradesbeforeorder.append(self.previousfivetrades)
-                        self.previousfivetrades = []
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
         return orders
      
     def createDumpShareSell(self):

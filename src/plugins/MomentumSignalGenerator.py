@@ -1,6 +1,7 @@
 """Momentum signal generator plugin"""
 
 import plugins
+import copy
 from plugins.SignalGeneratorUtils import calculateAverageReturn
 
 class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
@@ -75,7 +76,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             return None
         elif trading_record['Record Type'] == 'TRADE':
             self.previousfivetrades.append(trading_record)
-            if len(self.previousfivetrades) > 5:
+            if len(self.previousfivetrades) > self.historicalOutlook:
                 self.previousfivetrades.pop(0)
         
             self.currentTime = trading_record['Time']
@@ -108,8 +109,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         self.outstandingBuyVolume += int(buy['Volume'])
                         self.myorders.append(buy)
                         
-                        self.tradesbeforeorder.append(self.previousfivetrades)
-                        self.previousfivetrades = []
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
                 # Sell trading signal
                 elif self.runningaverage <= -self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
@@ -133,8 +133,7 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         orders.append(sell)
                         self.myorders.append(sell)
                         
-                        self.tradesbeforeorder.append(self.previousfivetrades)
-                        self.previousfivetrades = []
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
         return orders       
     
     def createDumpShareSell(self):

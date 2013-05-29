@@ -204,7 +204,7 @@ class InitialStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         graph.write('},')
         
         graph.write('{')
-        graph.write('"name" : "ORDERS - Each order contains upto 5 trades which occured before it was placed by the strategy",')
+        graph.write('"name" : "ORDERS - Each order contains the trades which occured before it was placed by the strategy, according to its look-back period",')
         graph.write('"children" : [')
         count = 0
         previousfive = []
