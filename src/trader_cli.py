@@ -53,7 +53,14 @@ def main():
     strategy_evaluator = plugin_info.plugin_object
     strategy_evaluator.setup(plugin_info.details)
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-    dr = csv.DictReader(sys.stdin)
+    fieldnames = sys.stdin.readline()
+    fieldnames = fieldnames[:len(fieldnames)-1]
+    if fieldnames[0] == '#':
+        fieldnames = fieldnames[1:]
+    if fieldnames[len(fielnames)-1] == ',':
+        fieldnames = fieldnames[:len(fieldnames)-1]
+    fieldnames = dict((fn, fn) for fn in fieldnames.split(','))
+    dr = csv.DictReader(sys.stdin, fieldnames)
     trades = trader.run_trial(dr, signal_generator,
                               engine, strategy_evaluator)
     dw = csv.DictWriter(sys.stdout, dr.fieldnames)

@@ -281,6 +281,8 @@ class TabPanel(wx.Panel):
     def Open(self, path):
         """Open the market data file"""
         market_data = open(path)
+        if market_data.read(1) != '#':
+            market_data.seek(0)
         dict_reader = csv.DictReader(market_data)
         self._market_data = [line for line in dict_reader]
         self._fieldnames = dict_reader.fieldnames
