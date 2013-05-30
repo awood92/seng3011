@@ -12,7 +12,7 @@ class HtmlStrategyEvaluator(plugins.IStrategyEvaluatorPlugin):
         """Read output file name from the config file"""
         self._filename = config.get('Parameters', 'filename')
 
-    def __call__(self, trades, x, y):
+    def __call__(self, trades, x, y,z,w):
         template = """<!doctype html>
 
 <html lang="en">

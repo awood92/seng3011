@@ -51,3 +51,6 @@ class InitialSignalGenerator(plugins.ISignalGeneratorPlugin):
         if endofday:
             return None
         return orders
+    
+    def getTradesBeforeOrder(self):
+        return []

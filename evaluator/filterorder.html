@@ -98,7 +98,7 @@ h2 {
   width: 420px;
 }
 
-#algo-chart {
+#trade-chart {
   width: 230px;
 }
 
@@ -139,7 +139,13 @@ h2 {
 }
 
 #flight-list div.distance {
-  width: 115px;
+  width: 175px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+#flight-list div.type {
+  width: 100px;
   padding-right: 10px;
   text-align: right;
 }
@@ -157,13 +163,13 @@ h2 {
 }
 
 #flight-list div.bid {
-  width: 185px;
+  width: 100px;
   padding-right: 10px;
   text-align: right;
 }
 
 #flight-list div.sid {
-  width: 185px;
+  width: 100px;
   padding-right: 10px;
   text-align: right;
 }
@@ -183,7 +189,7 @@ aside {
 
 <div id="body">
 
-<h1>The Integrated Trade Summariser</h1>
+<h1>Orderbook Summary</h1>
 
 
 <div id="charts">
@@ -196,8 +202,8 @@ aside {
   <div id="distance-chart" class="chart">
     <div class="title">Volume (shares)</div>
   </div>
-  <div id="algo-chart" class="chart">
-    <div class="title">Algorithmic Trades</div>
+  <div id="trade-chart" class="chart">
+    <div class="title">Record Type</div>
   </div>
   <div id="date-chart" class="chart">
     <div class="title">Time</div>
@@ -222,7 +228,7 @@ var formatNumber = d3.format(",d"),
     formatDate = d3.time.format("%B %d, %Y"),
     formatTime = d3.time.format("%I:%M:%S %p");
 
-d3.csv("filter.tsv", function(error, flights) {
+d3.csv("filterorder.tsv", function(error, flights) {
 
   // Domains:
   var minDate, maxDate, minPrice, maxPrice, minVal, maxVal;
@@ -254,7 +260,7 @@ d3.csv("filter.tsv", function(error, flights) {
       minPrice = d.delay;
     }
 
-    if(d.delay > maxPrice){
+    if(parseInt(d.delay) > parseInt(maxPrice)){
       maxPrice = d.delay;
     }
 
@@ -263,14 +269,15 @@ d3.csv("filter.tsv", function(error, flights) {
     d.delay = +d.delay;
     d.distance = +d.distance;
     d.origin = +d.origin;
-    d.algo = 0;
 
-    if(d.bbid == "Algorithmic"){
-      d.algo = d.algo + 1;
-    }
-
-    if (d.sbid == "Algorithmic"){
-      d.algo = d.algo + 2;
+    if(d.type == "B"){
+      d.type = 0;
+    }else if(d.type == "S"){
+      d.type = 1;
+    }else if(d.type == "A"){
+      d.type = 2;
+    }else if(d.type == "D"){
+      d.type = 3;
     }
      
   });
@@ -295,12 +302,12 @@ d3.csv("filter.tsv", function(error, flights) {
       hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
       hours = hour.group(Math.floor),
       delay = flight.dimension(function(d) { return d.delay }),
-      delays = delay.group(function(d) { return Math.floor(d * 10) / 10; }),
+      delays = delay.group(function(d) { return Math.floor(d * 100) / 100; }),
       //delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
       distance = flight.dimension(function(d) { return Math.min(2499, d.distance); }),
       distances = distance.group(function(d) { return Math.floor(d / 50) * 50; }),
-      algo = flight.dimension(function(d) { return d.algo; }),
-      algos = algo.group(function(d) { return Math.floor(d * 10) / 10; });
+      type = flight.dimension(function(d) { return d.type; }),
+      types = type.group(function(d) { return Math.floor(d * 10) / 10; });
 
   var charts = [
 
@@ -326,8 +333,8 @@ d3.csv("filter.tsv", function(error, flights) {
         .rangeRound([0, 10 * 40])),
 
     barChart()
-        .dimension(algo)
-        .group(algos)
+        .dimension(type)
+        .group(types)
       .x(d3.scale.linear()
         .domain([-0.8, 3.8])
         .rangeRound([0, 10 * 10])),
@@ -423,25 +430,40 @@ d3.csv("filter.tsv", function(error, flights) {
           .text(function(d) { return d.destination; });
 
       flightEnter.append("div")
+          .attr("class", "type")
+          .text(function(d){
+                  if(d.type == 0){
+                    return "BUY";
+                  }else if(d.type == 1){
+                    return "SELL";
+                  }else if(d.type == 2){
+                    return "AMEND";
+                  }else if(d.type == 3){
+                    return "DELETE";
+                  }
+                });
+
+
+      flightEnter.append("div")
           .attr("class", "distance")
-          .text(function(d) { return formatNumber(d.distance) + " units"; });
+          .text(function(d) { return d.distance != "" ? formatNumber(d.distance) + " units"  : "N/A"; });
 
       flightEnter.append("div")
           .attr("class", "delay")
           .classed("early", function(d) { return d.delay < 0; })
-          .text(function(d) { return "$" + parseFloat(Math.floor(d.delay*100)/100).toFixed(2) + " / share"; });
+          .text(function(d) { return d.delay != "" ? "$" + parseFloat(Math.floor(d.delay*100)/100).toFixed(2) + " / share" : "N/A"; });
 
       flightEnter.append("div")
           .attr("class", "origin")
-          .text(function(d) { return "$" + formatThousands(parseFloat(Math.floor(d.origin*100)/100))  + " total"; });
+          .text(function(d) { return d.origin != "" ? "$" + formatThousands(parseFloat(Math.floor(d.origin*100)/100))  + " total" : "N/A"; });
 
       flightEnter.append("div")
           .attr("class", "bid")
-          .text(function(d) { return d.bbid + " BID"; });
+          .text(function(d) { return d.bbid != "" ? (d.bbid + " BID") : "N/A"; });
 
       flightEnter.append("div")
           .attr("class", "sid")
-          .text(function(d) { return d.sbid + " SID"; });
+          .text(function(d) { return d.sbid != "" ? (d.sbid + " SID") : "N/A"; });
 
       flight.exit().remove();
 
@@ -477,14 +499,14 @@ d3.csv("filter.tsv", function(error, flights) {
       axis = d3.svg.axis().orient("bottom").tickFormat(d3.format("s"));
     } else if (barChart.id == 4){
       axis = d3.svg.axis().orient("bottom").ticks(4).tickFormat(function(d, i){
-                                                                  if(d==0){
-                                                                    return "None"
-                                                                  }else if(d==1){
-                                                                    return "B"
-                                                                  }else if(d==2){
-                                                                    return "S"
-                                                                  }else{
-                                                                    return "B+S"
+                                                                  if(d == 0){
+                                                                    return "B";
+                                                                  }else if(d == 1){
+                                                                    return "S";
+                                                                  }else if(d == 2){
+                                                                    return "A";
+                                                                  }else if(d == 3){
+                                                                    return "D";
                                                                   }
                                                                 });
     } else if (barChart.id == 5){

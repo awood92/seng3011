@@ -1,6 +1,7 @@
 """Momentum signal generator plugin"""
 
 import plugins
+import copy
 from plugins.SignalGeneratorUtils import calculateAverageReturn
 
 class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
@@ -34,7 +35,10 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.historicalOutlook = config.getint('Parameters','historicalOutlook')
         if self.historicalOutlook < 2:
             self.historicalOutlook = 2
-    
+        
+        self.tradesbeforeorder = []
+        self.previousfivetrades = []
+        
     def manualSetup(self,parameters):
         """Reads momentum strategy parameters from a parameter list"""
         self.started = False
@@ -55,6 +59,9 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
         self.outstandingBuyVolume = 0
         self.currentTime = '00:00:00.000'
         self.historicalOutlook = parameters["historicalOutlook"]
+        
+        self.tradesbeforeorder = []
+        self.previousfivetrades = []
 
     def __call__(self, trading_record=None, endofday=False):
         orders = []
@@ -68,6 +75,10 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                 return self.createDumpShareSell()
             return None
         elif trading_record['Record Type'] == 'TRADE':
+            self.previousfivetrades.append(trading_record)
+            if len(self.previousfivetrades) > self.historicalOutlook:
+                self.previousfivetrades.pop(0)
+        
             self.currentTime = trading_record['Time']
             if trading_record['Buyer Broker ID'] == 'Algorithmic':
                 self.BHPsharesInStock += int(trading_record['Volume'])
@@ -96,7 +107,9 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         buy['Seller Broker ID'] = ''
                         orders.append(buy)
                         self.outstandingBuyVolume += int(buy['Volume'])
-                        self.myorders.append(buy)                        
+                        self.myorders.append(buy)
+                        
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
                 # Sell trading signal
                 elif self.runningaverage <= -self.sellDistanceFromMeanThreshold:
                     if self.BHPsharesInStock > 0:
@@ -119,6 +132,8 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
                         sell['Seller Broker ID'] = 'Algorithmic'
                         orders.append(sell)
                         self.myorders.append(sell)
+                        
+                        self.tradesbeforeorder.append(copy.deepcopy(self.previousfivetrades))
         return orders       
     
     def createDumpShareSell(self):
@@ -154,3 +169,5 @@ class MomentumSignalGenerator(plugins.ISignalGeneratorPlugin):
             return self.maxBuyPacketSurplus*self.buyPacketSize - self.BHPsharesInStock + self.outstandingBuyVolume + self.outstandingSellVolume
         else:
             return self.buyPacketSize
+    def getTradesBeforeOrder(self):
+        return self.tradesbeforeorder
