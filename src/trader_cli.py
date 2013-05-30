@@ -57,10 +57,9 @@ def main():
     fieldnames = fieldnames[:len(fieldnames)-1]
     if fieldnames[0] == '#':
         fieldnames = fieldnames[1:]
-    if fieldnames[len(fielnames)-1] == ',':
+    if fieldnames[len(fieldnames)-1] == ',':
         fieldnames = fieldnames[:len(fieldnames)-1]
-    fieldnames = dict((fn, fn) for fn in fieldnames.split(','))
-    dr = csv.DictReader(sys.stdin, fieldnames)
+    dr = csv.DictReader(sys.stdin, fieldnames.split(','))
     trades = trader.run_trial(dr, signal_generator,
                               engine, strategy_evaluator)
     dw = csv.DictWriter(sys.stdout, dr.fieldnames)
